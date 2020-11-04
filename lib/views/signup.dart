@@ -4,7 +4,6 @@ import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/helper/theme.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
-import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
@@ -17,38 +16,44 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
-  bool isLoading = false;
-
-  AuthService authService = new AuthService();
-  DatabaseMethods databaseMethods = new DatabaseMethods();
-  HelperFunctions helperFunctions = new HelperFunctions();
-
-  final formKey = GlobalKey<FormState>();
   TextEditingController emailEditingController = new TextEditingController();
   TextEditingController passwordEditingController = new TextEditingController();
   TextEditingController usernameEditingController = new TextEditingController();
 
+  AuthService authService = new AuthService();
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+
+  final formKey = GlobalKey<FormState>();
+  bool isLoading = false;
+  HelperFunctions helperFunctions = new HelperFunctions();
+
   signMeUp() async {
     if (formKey.currentState.validate()) {
-      Map<String, String> userInfoMap = {
-        "name": usernameEditingController.text,
-        "email": emailEditingController.text
-      };
-
-      HelperFunctions.saveUserEmailSharedPreference(emailEditingController.text);
-      HelperFunctions.saveUserNameSharedPreference(usernameEditingController.text);
-
       setState(() {
         isLoading = true;
       });
-      authService.signUpWithEmailAndPassword(
+
+      await authService
+          .signUpWithEmailAndPassword(
               emailEditingController.text, passwordEditingController.text)
-          .then((result) {
-        databaseMethods.uploadUserInfo(userInfoMap);
-        HelperFunctions.saveUserLoggedInSharedPreference(true);
-        Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) => ChatRoom()
-        ));
+          .then((val) {
+        if(val != null){
+
+          Map<String, String> userDataMap = {
+            "name" : usernameEditingController.text,
+            "email" : emailEditingController.text
+          };
+
+          databaseMethods.uploadUserInfo(userDataMap);
+
+          HelperFunctions.saveUserLoggedInSharedPreference(true);
+          HelperFunctions.saveUserNameSharedPreference(usernameEditingController.text);
+          HelperFunctions.saveUserEmailSharedPreference(emailEditingController.text);
+
+          Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (context) => ChatRoom()
+          ));
+        }
       });
     }
   }
@@ -76,8 +81,8 @@ class _SignUpState extends State<SignUp> {
                           style: simpleTextStyle(),
                           controller: usernameEditingController,
                           validator: (val) {
-                            return val.isEmpty || val.length < 3
-                                ? "3자 이상의 이름을 입력해주세요."
+                            return val.isEmpty || val.length < 1
+                                ? "1자 이상의 이름을 입력해주세요."
                                 : null;
                           },
                           decoration: textFieldInputDecoration("사용자 이름"),
@@ -100,9 +105,9 @@ class _SignUpState extends State<SignUp> {
                           decoration: textFieldInputDecoration("비밀번호"),
                           controller: passwordEditingController,
                           validator: (val) {
-                            return val.length < 6
-                                ? "6자 이상의 비밀번호를 입력해 주세요."
-                                : null;
+                            return val.length >= 6
+                                ? null
+                                : "6자 이상의 비밀번호를 입력해 주세요.";
                           },
                         ),
                       ],
@@ -180,6 +185,5 @@ class _SignUpState extends State<SignUp> {
               ),
             ),
     );
-    ;
   }
 }

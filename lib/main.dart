@@ -8,14 +8,13 @@ void main() {
 }
 
 class MyApp extends StatefulWidget {
-  // This widget is the root of your application.
   @override
   _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
 
-  bool userIsLoggedIn;
+  bool userIsLoggedIn = false;
 
   @override
   void initState() {
@@ -26,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   getLoggedInState() async {
     await HelperFunctions.getUserLoggedInSharedPreference().then((value){
       setState(() {
-        userIsLoggedIn  = value;
+        userIsLoggedIn = value;
       });
     });
   }
@@ -43,7 +42,26 @@ class _MyAppState extends State<MyApp> {
         fontFamily: "OverpassRegular",
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: Authenticate(),
+      home: userIsLoggedIn != null ?  userIsLoggedIn ? ChatRoom() : Authenticate()
+          : Container(
+        child: Center(
+          child: Authenticate(),
+        ),
+      ),
     );
   }
 }
+
+class IamBlink extends StatefulWidget {
+  @override
+  _IamBlinkState createState() => _IamBlinkState();
+}
+
+class _IamBlinkState extends State<IamBlink> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+

@@ -8,7 +8,6 @@ import 'package:chat_app/widgets/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-
 class SignIn extends StatefulWidget {
   final Function toggleView;
 
@@ -20,42 +19,41 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   final formKey = GlobalKey<FormState>();
-  TextEditingController emailEditingController = new TextEditingController();
-  TextEditingController passwordEditingController = new TextEditingController();
   AuthService authService = new AuthService();
-  bool isLoading = false;
+  DatabaseMethods databaseMethods = new DatabaseMethods();
+  TextEditingController emailTextEditingController =
+      new TextEditingController();
+  TextEditingController passwordTextEditingController =
+      new TextEditingController();
 
-  signIn() async {
+  bool isLoading = false;
+  QuerySnapshot snapshotUserInfo;
+
+  signIn() {
     if (formKey.currentState.validate()) {
-      HelperFunctions.saveUserEmailSharedPreference(emailEditingController.text);
-      //HelperFunctions.saveUserNameSharedPreference(usernameEditingController.text);
+      HelperFunctions.saveUserEmailSharedPreference(
+          emailTextEditingController.text);
+
+      databaseMethods.getUserByEmail(emailTextEditingController.text)
+          .then((val) {
+        snapshotUserInfo = val;
+        HelperFunctions
+            .saveUserNameSharedPreference(snapshotUserInfo.documents[0].data["name"]);
+        //print("${snapshotUserInfo.documents[0].data["name"]} 좋지 않아보여요...");
+      });
+
       setState(() {
         isLoading = true;
       });
-      HelperFunctions.saveUserLoggedInSharedPreference(true);
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => ChatRoom()));
 
-      await authService
-          .signInWithEmailAndPassword(
-              emailEditingController.text, passwordEditingController.text)
-          .then((result) async {
-        if (result != null)  {
-          QuerySnapshot userInfoSnapshot =
-              await DatabaseMethods().getUserInfo(emailEditingController.text);
-
-
-          HelperFunctions.saveUserNameSharedPreference(
-              userInfoSnapshot.documents[0].data["userName"]);
-          HelperFunctions.saveUserEmailSharedPreference(
-              userInfoSnapshot.documents[0].data["userEmail"]);
-
-
-        } else {
-          setState(() {
-            isLoading = false;
-            //show snackbar
-          });
+      authService
+          .signInWithEmailAndPassword(emailTextEditingController.text,
+              passwordTextEditingController.text)
+          .then((val) {
+        if (val != null) {
+          HelperFunctions.saveUserLoggedInSharedPreference(true);
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => ChatRoom()));
         }
       });
     }
@@ -86,19 +84,19 @@ class _SignInState extends State<SignIn> {
                                 ? null
                                 : "올바른 이메일을 입력해주세요.";
                           },
-                          controller: emailEditingController,
+                          controller: emailTextEditingController,
                           style: simpleTextStyle(),
                           decoration: textFieldInputDecoration("이메일"),
                         ),
                         TextFormField(
                           obscureText: true,
                           validator: (val) {
-                            return val.length > 6
+                            return val.length >= 6
                                 ? null
                                 : "6자 이상되는 비밀번호를 입력해 주세요.";
                           },
                           style: simpleTextStyle(),
-                          controller: passwordEditingController,
+                          controller: passwordTextEditingController,
                           decoration: textFieldInputDecoration("비밀번호"),
                         ),
                       ],

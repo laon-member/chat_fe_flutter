@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "852364413409",
+    "firebase_url": "https://chatappsample-a6614.firebaseio.com",
+    "project_id": "chatappsample-a6614",
+    "storage_bucket": "chatappsample-a6614.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852364413409:android:471231953fef408f666aa0",
+        "android_client_info": {
+          "package_name": "com.kroon.chat_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "852364413409-66g5h2b1ige4vh0v11r387a7jiri4mms.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2p0WUdh-8Pn_g0vn_zOC1CgIpF88vkmA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "852364413409-66g5h2b1ige4vh0v11r387a7jiri4mms.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

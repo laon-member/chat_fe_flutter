@@ -1,5 +1,5 @@
 import 'package:chat_app/models/user.dart';
-import 'package:chat_app/views/chat.dart';
+import 'package:chat_app/views/chatRoomsScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -44,26 +44,28 @@ class AuthService {
     }
   }
 
+
   Future<FirebaseUser> signInWithGoogle(BuildContext context) async {
     final GoogleSignIn _googleSignIn = new GoogleSignIn();
 
     final GoogleSignInAccount googleSignInAccount =
-        await _googleSignIn.signIn();
+    await _googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+    await googleSignInAccount.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.getCredential(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 
     AuthResult result = await _auth.signInWithCredential(credential);
-    FirebaseUser userDetails = result.user;
+    //FirebaseUser userDetails = result.user;
 
     if (result == null) {
     } else {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => Chat()));
+      Navigator.push(context, MaterialPageRoute(builder: (context) =>  ChatRoom()));
     }
   }
+
 
   Future signOut() async {
     try {
@@ -73,4 +75,6 @@ class AuthService {
       return null;
     }
   }
+
 }
+
