@@ -10,51 +10,46 @@ import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
-
   SignIn(this.toggleView);
 
   @override
   _SignInState createState() => _SignInState();
 }
-
+TextEditingController emailTextEditingController = new TextEditingController();
+TextEditingController passwordTextEditingController = new TextEditingController();
+AuthService authService = new AuthService();
 class _SignInState extends State<SignIn> {
+
   final formKey = GlobalKey<FormState>();
-  AuthService authService = new AuthService();
-  DatabaseMethods databaseMethods = new DatabaseMethods();
-  TextEditingController emailTextEditingController =
-      new TextEditingController();
-  TextEditingController passwordTextEditingController =
-      new TextEditingController();
 
   bool isLoading = false;
-  QuerySnapshot snapshotUserInfo;
 
-  signIn() {
+  signIn() async {
 
     if (formKey.currentState.validate()) {
-      HelperFunctions.saveUserEmailSharedPreference(
-          emailTextEditingController.text);
-
-      databaseMethods.getUserByEmail(emailTextEditingController.text)
-          .then((val) {
-        snapshotUserInfo = val;
-        HelperFunctions
-            .saveUserNameSharedPreference(snapshotUserInfo.documents[0].data["name"]);
-        //print("${snapshotUserInfo.documents[0].data["name"]} 좋지 않아보여요...");
-      });
-
       setState(() {
         isLoading = true;
       });
+      await authService
+          .signInWithEmailAndPassword(
+          emailTextEditingController.text, passwordTextEditingController.text)
+          .then((result) async {
+        if (result != null)  {
+          QuerySnapshot userInfoSnapshot =
+          await DatabaseMethods().getUserByEmail(emailTextEditingController.text);
 
-      authService
-          .signInWithEmailAndPassword(emailTextEditingController.text,
-              passwordTextEditingController.text)
-          .then((val) {
-        if (val != null) {
           HelperFunctions.saveUserLoggedInSharedPreference(true);
+          HelperFunctions.saveUserNameSharedPreference(
+              userInfoSnapshot.documents[0].data["userName"]);
+          HelperFunctions.saveUserEmailSharedPreference(
+              userInfoSnapshot.documents[0].data["userEmail"]);
+
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => ChatRoom()));
+        } else {
+          setState(() {
+            isLoading = false;
+          });
         }
       });
     }
@@ -63,8 +58,9 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarMain(context),
-      body: isLoading
+        appBar: appBarMain(context),
+        //resizeToAvoidBottomPadding: false,
+        body: isLoading
           ? Container(
               child: Center(child: CircularProgressIndicator()),
             )

@@ -3,6 +3,7 @@ import 'package:chat_app/services/database.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
+///conversation : 대화
 ///상대방과 대화할 수 있는 스크린 입니다.
 ///
 
@@ -103,6 +104,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ],
         ),
       ),
+        resizeToAvoidBottomPadding: false,
     );
   }
 }

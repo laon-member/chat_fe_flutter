@@ -79,6 +79,7 @@ class _ChatRoomState extends State<ChatRoom> {
           )
         ],
       ),
+      resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
         onPressed: () {
