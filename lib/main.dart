@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 void main() {
   runApp(MyApp());
+  print("RUNNING...");
 }
 
 class MyApp extends StatefulWidget {

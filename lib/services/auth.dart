@@ -24,13 +24,14 @@ class AuthService {
   }
 
   Future signUpWithEmailAndPassword(String email, String password) async {
+    print("UPLOADING.. : 사용자 정보: $email, $password");
     try {
       AuthResult result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       FirebaseUser user = result.user;
       return _userFromFirebaseUser(user);
     } catch (e) {
-      print(e.toString());
+      print("에러: ${e.toString()}");
       return null;
     }
   }

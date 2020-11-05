@@ -14,9 +14,10 @@ class DatabaseMethods {
   }
 
   uploadUserInfo(userMap) {
+    Firestore.instance.collection("users");
     Firestore.instance.collection("users")
         .add(userMap).catchError((e) {
-      print(e.toString());
+      print("에러!: ${e.toString()}");
     });
   }
 

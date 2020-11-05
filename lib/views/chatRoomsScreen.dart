@@ -8,6 +8,8 @@ import 'package:chat_app/views/search.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
+///채팅 방 리스트
+///
 class ChatRoom extends StatefulWidget {
   @override
   _ChatRoomState createState() => _ChatRoomState();
@@ -29,7 +31,9 @@ class _ChatRoomState extends State<ChatRoom> {
           itemBuilder: (context, index){
             return ChatRoomTile(
               snapshot.data.documents[index].data["chatroomId"]
-                  .toString().replaceAll("_", "").replaceAll(Constants.myName, ""),
+                  .toString()
+                  .replaceAll("_", "")
+                  .replaceAll(Constants.myName, ""),
               snapshot.data.documents[index].data["chatroomId"]
             );
           }) : Container();

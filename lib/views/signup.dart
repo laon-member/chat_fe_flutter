@@ -39,9 +39,9 @@ class _SignUpState extends State<SignUp> {
           .then((val) {
         if(val != null){
 
-          Map<String, String> userDataMap = {
+          Map<String, dynamic> userDataMap = {
+            "email" : emailEditingController.text,
             "name" : usernameEditingController.text,
-            "email" : emailEditingController.text
           };
 
           databaseMethods.uploadUserInfo(userDataMap);
