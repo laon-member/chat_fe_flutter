@@ -4,6 +4,7 @@ import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/helper/theme.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
@@ -38,7 +39,6 @@ class _SignUpState extends State<SignUp> {
               emailEditingController.text, passwordEditingController.text)
           .then((val) {
         if(val != null){
-
           Map<String, dynamic> userDataMap = {
             "email" : emailEditingController.text,
             "name" : usernameEditingController.text,
@@ -62,7 +62,6 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarMain(context),
-        resizeToAvoidBottomPadding: false,
         body: isLoading
           ? Container(
               child: Center(

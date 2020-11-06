@@ -1,3 +1,4 @@
+import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/conversation_screen.dart';
@@ -10,41 +11,44 @@ class Search extends StatefulWidget {
   _SearchState createState() => _SearchState();
 }
 
+String myName;
+
 class _SearchState extends State<Search> {
   DatabaseMethods databaseMethods = new DatabaseMethods();
-  TextEditingController searchTextEditingController = new TextEditingController();
+  TextEditingController searchTextEditingController =
+      new TextEditingController();
   QuerySnapshot searchResultSnapshot;
 
   bool isLoading = false;
   bool haveUserSearched = false;
 
   initiateSearch() async {
-    if(searchTextEditingController.text.isNotEmpty){
+    if (searchTextEditingController.text.isNotEmpty) {
+      await databaseMethods
+        .getUserByUsername(searchTextEditingController.text)
+        .then((snapshot) {
+      searchResultSnapshot = snapshot;
+      print("$searchResultSnapshot");
       setState(() {
-        isLoading = true;
+        haveUserSearched = true;
       });
-      await databaseMethods.getUserByUsername(searchTextEditingController.text)
-          .then((snapshot){
-        searchResultSnapshot = snapshot;
-        print("$searchResultSnapshot");
-        setState(() {
-          isLoading = false;
-          haveUserSearched = true;
-        });
-      });
+    });
+
     }
   }
 
-  Widget searchList(){
-    return haveUserSearched ? ListView.builder(
-        shrinkWrap: true,
-        itemCount: searchResultSnapshot.documents.length,
-        itemBuilder: (context, index){
-          return SearchTile(
-            searchResultSnapshot.documents[index].data["name"],
-            searchResultSnapshot.documents[index].data["email"],
-          );
-        }) : Container();
+  Widget searchList() {
+    return haveUserSearched
+        ? ListView.builder(
+            shrinkWrap: true,
+            itemCount: searchResultSnapshot.documents.length,
+            itemBuilder: (context, index) {
+              return SearchTile(
+                searchResultSnapshot.documents[index].data["name"],
+                searchResultSnapshot.documents[index].data["email"],
+              );
+            })
+        : Container();
   }
 
   /// 채팅방 반들기, 메시지 등을 다른 사용자에게 보냄.
@@ -93,10 +97,10 @@ class _SearchState extends State<Search> {
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Text(
-                "메시지",
-                style: mediumTextStyle(),
-              ),
+              child: Icon(
+                Icons.message,
+                color: Colors.white,
+              ), //하얀색 메시지 아이콘
             ),
           )
         ],
@@ -104,6 +108,15 @@ class _SearchState extends State<Search> {
     );
   }
 
+  getChatRoomId(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+      return "$b\_$a";
+    } else {
+      return "$a\_$b";
+    }
+  }
+
+  @override
   void initState() {
     initiateSearch();
     super.initState();
@@ -113,56 +126,57 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBarMain(context),
-      body: Container(
-        child: Column(
-          children: [
-            Container(
-              color: Color(0x54FFFFFF),
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              child: Row(
+      body: isLoading
+          ? Container(
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : Container(
+              child: Column(
                 children: [
-                  Expanded(
-                      child: TextField(
-                    controller: searchTextEditingController,
-                    style: TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                        hintText: "Search Username..",
-                        hintStyle: TextStyle(color: Colors.white54),
-                        border: InputBorder.none),
-                  )),
-                  GestureDetector(
-                    onTap: () {
-                      initiateSearch();
-                    },
-                    child: Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(colors: [
-                            const Color(0x36FFFFFF),
-                            const Color(0x0FFFFFFF)
-                          ]),
-                          borderRadius: BorderRadius.circular(40),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    color: Color(0x54FFFFFF),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: searchTextEditingController,
+                            style: simpleTextStyle(),
+                            decoration: InputDecoration(
+                                hintText: "사용자 이름..",
+                                hintStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none),
+                          ),
                         ),
-                        padding: EdgeInsets.all(10),
-                        child: Icon(Icons.search)),
-                  )
+                        GestureDetector(
+                          onTap: () {
+                            initiateSearch();
+                          },
+                          child: Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                  color: Colors.white24,
+                                  borderRadius: BorderRadius.circular(40)),
+                              padding: EdgeInsets.all(12),
+                              child: Icon(
+                                Icons.search,
+                                color: Colors.white,
+                                size: 20,
+                              )),
+                        )
+                      ],
+                    ),
+                  ),
+                  searchList()
                 ],
               ),
             ),
-            searchList(),
-          ],
-        ),
-      ),
-      resizeToAvoidBottomPadding: false,
     );
-  }
-}
-
-getChatRoomId(String a, String b) {
-  if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-    return "$b\_$a";
-  } else {
-    return "$a\_$b";
   }
 }

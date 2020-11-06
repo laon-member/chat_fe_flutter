@@ -43,13 +43,12 @@ class _ChatRoomState extends State<ChatRoom> {
 
   void initState() {
     getUserInfo();
-
     super.initState();
   }
 
   getUserInfo() async {
     Constants.myName = await HelperFunctions.getUserNameSharedPreference();
-    databaseMethods.getChatRooms(Constants.myName).then((value){
+    await databaseMethods.getChatRooms(Constants.myName).then((value){
       setState(() {
         chatRoomsStream = value;
       });
@@ -63,9 +62,7 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Image.asset(
-          "assets/images/logo.png",
-          height: 50,),
+        title: Text(Constants.myName.toString(),),
         actions: [
           GestureDetector(
             onTap: () {
@@ -107,6 +104,7 @@ class ChatRoomTile extends StatelessWidget {
       },
       child: Container(
         color: Colors.black26,
+
         padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Row(
           children: [

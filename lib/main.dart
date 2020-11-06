@@ -2,6 +2,7 @@ import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/views/chatRoomsScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -22,7 +23,6 @@ class _MyAppState extends State<MyApp> {
     getLoggedInState();
     super.initState();
   }
-
   getLoggedInState() async {
     await HelperFunctions.getUserLoggedInSharedPreference().then((value){
       setState(() {

@@ -5,10 +5,10 @@ import 'package:flutter/material.dart';
 
 ///conversation : 대화
 ///상대방과 대화할 수 있는 스크린 입니다.
-///
-
+///일반 사용자들은 이 스크린을 흔히 "대화방" 혹은 "톡방"으로 부릅니다.
 class ConversationScreen extends StatefulWidget {
   final String chatRoomId;
+
   ConversationScreen(this.chatRoomId);
 
   @override
@@ -29,8 +29,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
             ? ListView.builder(
                 itemCount: snapshot.data.documents.length,
                 itemBuilder: (context, index) {
-                  return MessageTile(snapshot.data.documents[index].data["message"],
-                      snapshot.data.documents[index].data["sendBy"] == Constants.myName);
+                  return MessageTile(
+                      snapshot.data.documents[index].data["message"],
+                      snapshot.data.documents[index].data["sendBy"] ==
+                          Constants.myName);
                 })
             : Container();
       },
@@ -45,6 +47,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
         "time": DateTime.now().millisecondsSinceEpoch,
       };
       databaseMethods.addConversationMessages(widget.chatRoomId, messageMap);
+      databaseMethods.getConversationMessages(widget.chatRoomId).then((value) {
+        chatMessageStream = value;
+      });
     }
   }
 
@@ -88,14 +93,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           height: 40,
                           width: 40,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(colors: [
-                              const Color(0x36FFFFFF),
-                              const Color(0x0FFFFFFF)
-                            ]),
+                            color: Colors.blue,
                             borderRadius: BorderRadius.circular(40),
                           ),
                           padding: EdgeInsets.all(10),
-                          child: Image.asset("assets/images/send.png")),
+                          child: Icon(
+                            Icons.send,
+                            color: Colors.white,
+                          )),
                     )
                   ],
                 ),
@@ -104,7 +109,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
           ],
         ),
       ),
-        resizeToAvoidBottomPadding: false,
     );
   }
 }
@@ -112,6 +116,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
 class MessageTile extends StatelessWidget {
   final String message;
   final bool isSendByMe;
+
   MessageTile(this.message, this.isSendByMe);
 
   @override
@@ -124,32 +129,24 @@ class MessageTile extends StatelessWidget {
           right: isSendByMe ? 24 : 0),
       alignment: isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: isSendByMe
-            ? EdgeInsets.only(left: 30)
-            : EdgeInsets.only(right: 30),
-        padding: EdgeInsets.only(
-            top: 17, bottom: 17, left: 20, right: 20),
+        margin:
+            isSendByMe ? EdgeInsets.only(left: 30) : EdgeInsets.only(right: 30),
+        padding: EdgeInsets.only(top: 17, bottom: 17, left: 20, right: 20),
         decoration: BoxDecoration(
-            borderRadius: isSendByMe ? BorderRadius.only(
-                topLeft: Radius.circular(23),
-                topRight: Radius.circular(23),
-                bottomLeft: Radius.circular(23)
-            ) :
-            BorderRadius.only(
-                topLeft: Radius.circular(23),
-                topRight: Radius.circular(23),
-                bottomRight: Radius.circular(23)),
+            borderRadius: isSendByMe
+                ? BorderRadius.only(
+                    topLeft: Radius.circular(23),
+                    topRight: Radius.circular(23),
+                    bottomLeft: Radius.circular(23))
+                : BorderRadius.only(
+                    topLeft: Radius.circular(23),
+                    topRight: Radius.circular(23),
+                    bottomRight: Radius.circular(23)),
             gradient: LinearGradient(
-              colors: isSendByMe ? [
-                const Color(0xff007EF4),
-                const Color(0xff2A75BC)
-              ]
-                  : [
-                const Color(0x1AFFFFFF),
-                const Color(0x1AFFFFFF)
-              ],
-            )
-        ),
+              colors: isSendByMe
+                  ? [const Color(0xff007EF4), const Color(0xff2A75BC)]
+                  : [const Color(0x1AFFFFFF), const Color(0x1AFFFFFF)],
+            )),
         child: Text(message,
             textAlign: TextAlign.start,
             style: TextStyle(
