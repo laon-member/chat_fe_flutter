@@ -1,60 +1,57 @@
 import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
-import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/conversation_screen.dart';
 import 'package:chat_app/views/search.dart';
+import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
-///채팅 방 리스트
-///
 class ChatRoom extends StatefulWidget {
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
 
 class _ChatRoomState extends State<ChatRoom> {
+  Stream chatRooms;
 
-  AuthService authService = new AuthService();
-  DatabaseMethods databaseMethods = new DatabaseMethods();
-
-  Stream chatRoomsStream;
-
-  Widget ChatRoomList() {
+  Widget chatRoomsList() {
     return StreamBuilder(
-      stream: chatRoomsStream,
+      stream: chatRooms,
       builder: (context, snapshot) {
-        return snapshot.hasData ? ListView.builder(
-          itemCount: snapshot.data.documents.length,
-          itemBuilder: (context, index){
-            return ChatRoomTile(
-              snapshot.data.documents[index].data["chatroomId"]
-                  .toString()
-                  .replaceAll("_", "")
-                  .replaceAll(Constants.myName, ""),
-              snapshot.data.documents[index].data["chatroomId"]
-            );
-          }) : Container();
+        return snapshot.hasData
+            ? ListView.builder(
+            itemCount: snapshot.data.documents.length,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              return ChatRoomsTile(
+                userName: snapshot.data.documents[index].data['chatRoomId']
+                    .toString()
+                    .replaceAll("_", "")
+                    .replaceAll(Constants.myName, ""),
+                chatRoomId: snapshot.data.documents[index].data["chatRoomId"],
+              );
+            })
+            : Container();
       },
     );
   }
 
+  @override
   void initState() {
-    getUserInfo();
+    getUserInfogetChats();
     super.initState();
   }
 
-  getUserInfo() async {
+  getUserInfogetChats() async {
     Constants.myName = await HelperFunctions.getUserNameSharedPreference();
-    await databaseMethods.getChatRooms(Constants.myName).then((value){
+    DatabaseMethods().getChatRooms(Constants.myName).then((snapshots) {
       setState(() {
-        chatRoomsStream = value;
+        chatRooms = snapshots;
+        print(
+            "we got the data + ${chatRooms.toString()} this is name  ${Constants.myName}");
       });
-    });
-    setState(() {
-
     });
   }
 
@@ -81,7 +78,7 @@ class _ChatRoomState extends State<ChatRoom> {
         child: Icon(Icons.search),
         onPressed: () {
           Navigator.push(context, MaterialPageRoute(
-            builder: (context) => Search()
+              builder: (context) => Search()
           ));
         },
       ),
@@ -89,17 +86,18 @@ class _ChatRoomState extends State<ChatRoom> {
   }
 }
 
-class ChatRoomTile extends StatelessWidget {
+class ChatRoomsTile extends StatelessWidget {
   final String userName;
   final String chatRoomId;
-  ChatRoomTile(this.userName, this.chatRoomId);
+
+  ChatRoomsTile({this.userName,@required this.chatRoomId});
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(
-          builder: (context) => ConversationScreen(chatRoomId)
+            builder: (context) => ConversationScreen(chatRoomId)
         ));
       },
       child: Container(
@@ -113,11 +111,11 @@ class ChatRoomTile extends StatelessWidget {
               width: 40,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(40)
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.circular(40)
               ),
               child: Text("${userName.substring(0,1).toUpperCase()}",
-              style: mediumTextStyle(),),
+                style: mediumTextStyle(),),
             ),
             SizedBox(width: 8,),
             Text(userName)

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 
 class DatabaseMethods {
   ///사용자의 이름으로 검색할 때 구현됩니다.
@@ -28,11 +27,14 @@ class DatabaseMethods {
     });
   }
 
-  createChatRoom(String charRoomId, chatRoomMap) {
+  Future<bool> CreateChatRoom(String charRoomId, chatRoomMap) {
     Firestore.instance
         .collection("ChatRoom")
         .document(charRoomId)
-        .setData(chatRoomMap);
+        .setData(chatRoomMap)
+        .catchError((e) {
+      print(e);
+    });
   }
 
   getConversationMessages(String chatRoomId) async {
@@ -48,7 +50,7 @@ class DatabaseMethods {
         .collection("ChatRoom")
         .document(chatRoomId)
         .collection("chats")
-        .orderBy("time", descending: true)
+        .orderBy("time", descending: false)
         .snapshots();
   }
 

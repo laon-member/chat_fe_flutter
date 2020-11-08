@@ -21,6 +21,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   Stream chatMessageStream;
 
+  // ignore: non_constant_identifier_names
   Widget ChatMessageList() {
     return StreamBuilder(
       stream: chatMessageStream,
@@ -46,17 +47,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
         "sendBy": Constants.myName,
         "time": DateTime.now().millisecondsSinceEpoch,
       };
-      databaseMethods.addConversationMessages(widget.chatRoomId, messageMap);
-      databaseMethods.getConversationMessages(widget.chatRoomId).then((value) {
-        chatMessageStream = value;
-      });
+      DatabaseMethods().addConversationMessages(widget.chatRoomId, messageMap);
     }
   }
 
   @override
   void initState() {
     databaseMethods.getConversationMessages(widget.chatRoomId).then((value) {
-      chatMessageStream = value;
+      setState(() {
+        chatMessageStream = value;
+      });
     });
     super.initState();
   }

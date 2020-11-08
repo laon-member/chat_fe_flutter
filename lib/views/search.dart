@@ -1,4 +1,3 @@
-import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/conversation_screen.dart';
@@ -51,6 +50,14 @@ class _SearchState extends State<Search> {
         : Container();
   }
 
+  getChatRoomId(String a, String b) {
+    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
+      return "$b\_$a";
+    } else {
+      return "$a\_$b";
+    }
+  }
+
   /// 채팅방 반들기, 메시지 등을 다른 사용자에게 보냄.
   createChatroomAndStartConversation({String userName}) {
     if (userName != Constants.myName) {
@@ -60,7 +67,7 @@ class _SearchState extends State<Search> {
         "users": users,
         "chatroomId": chatRoomId
       };
-      databaseMethods.createChatRoom(chatRoomId, charRoomMap);
+      databaseMethods.CreateChatRoom(chatRoomId, charRoomMap);
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -108,19 +115,15 @@ class _SearchState extends State<Search> {
     );
   }
 
-  getChatRoomId(String a, String b) {
-    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-      return "$b\_$a";
-    } else {
-      return "$a\_$b";
-    }
-  }
+
 
   @override
   void initState() {
     initiateSearch();
     super.initState();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
