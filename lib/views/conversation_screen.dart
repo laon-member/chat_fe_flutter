@@ -11,6 +11,7 @@ class ConversationScreen extends StatefulWidget {
 
   ConversationScreen(this.chatRoomId);
 
+
   @override
   _ConversationScreenState createState() => _ConversationScreenState();
 }
@@ -48,6 +49,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         "time": DateTime.now().millisecondsSinceEpoch,
       };
       DatabaseMethods().addConversationMessages(widget.chatRoomId, messageMap);
+
     }
   }
 
@@ -60,11 +62,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
     });
     super.initState();
   }
+  //ScrollController _scrollController = new ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarMain(context),
+      appBar: AppBar(
+          title: Text(widget.chatRoomId.replaceAll("_", "").replaceAll(Constants.myName, ""))),
       body: Container(
         child: Stack(
           children: [
@@ -88,6 +92,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     GestureDetector(
                       onTap: () {
                         sendMessage();
+                        // _scrollController.animateTo(
+                        //   0.0,
+                        //   curve: Curves.easeOut,
+                        //   duration: const Duration(milliseconds: 300),
+                        // );
                       },
                       child: Container(
                           height: 40,
@@ -112,6 +121,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
   }
 }
+
 
 class MessageTile extends StatelessWidget {
   final String message;

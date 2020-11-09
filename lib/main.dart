@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 void main() {
+  SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
   runApp(MyApp());
   print("RUNNING...");
 }
