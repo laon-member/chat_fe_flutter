@@ -63,6 +63,8 @@ class _ChatRoomState extends State<ChatRoom> {
         title: Text(
           Constants.myName.toString(),
         ),
+        backgroundColor: Color(0xff2F2F2F),
+        elevation: 0,
         actions: [
           GestureDetector(
             // onLongPress: () {
@@ -79,7 +81,14 @@ class _ChatRoomState extends State<ChatRoom> {
           )
         ],
       ),
-      body: chatRoomsList(),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          color: Color(0xff1F1F1F),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: chatRoomsList(),
+      ),
       resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
@@ -109,8 +118,10 @@ class ChatRoomsTile extends StatelessWidget {
                 builder: (context) => ConversationScreen(this.chatRoomId)));
       },
       child: Container(
-        color: Colors.black26,
-        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+        ),
         child: Row(
           children: [
             Container(

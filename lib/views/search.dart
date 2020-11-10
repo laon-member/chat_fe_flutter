@@ -11,6 +11,7 @@ class Search extends StatefulWidget {
 }
 
 String myName;
+
 class _SearchState extends State<Search> {
   DatabaseMethods databaseMethods = new DatabaseMethods();
   TextEditingController searchTextEditingController =
@@ -20,21 +21,28 @@ class _SearchState extends State<Search> {
   bool isLoading = false;
   bool haveUserSearched = false;
 
+  ///사람을 검색할 때 사용합니다. 이 경우 검색창이 비어있지 않아야 합니다.
   initiateSearch() async {
     if (searchTextEditingController.text.isNotEmpty) {
       await databaseMethods
-        .getUserByUsername(searchTextEditingController.text)
-        .then((snapshot) {
-      searchResultSnapshot = snapshot;
-      print("$searchResultSnapshot");
-      setState(() {
-        haveUserSearched = true;
+          .getUserByUsername(searchTextEditingController.text)
+          .then((snapshot) {
+        searchResultSnapshot = snapshot;
+        print("$searchResultSnapshot");
+        setState(() {
+          haveUserSearched = true;
+        });
       });
-    });
-
     }
   }
 
+  @override
+  void initState() {
+    initiateSearch();
+    super.initState();
+  }
+
+  ///유저가 검색이 된 경우 Firebase 에서 값을 구해옵니다. 만약 "k"를 검색한 경우 "k"와 관련되어 있는 이름이 모두 뜨게 됩니다.
   Widget searchList() {
     return haveUserSearched
         ? ListView.builder(
@@ -49,6 +57,7 @@ class _SearchState extends State<Search> {
         : Container();
   }
 
+///채팅방의 ID를 받아옵니다.
   getChatRoomId(String a, String b) {
     if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
       return "$b\_$a";
@@ -57,7 +66,7 @@ class _SearchState extends State<Search> {
     }
   }
 
-  /// 채팅방 반들기, 메시지 등을 다른 사용자에게 보냄.
+  /// 채팅방을 만들며 대화를 시작합니다. 그러나 본인에게는 메시지를 전송할 수 없습니다.
   createChatroomAndStartConversation({String userName}) {
     if (userName != Constants.myName) {
       String chatRoomId = getChatRoomId(userName, Constants.myName);
@@ -78,7 +87,7 @@ class _SearchState extends State<Search> {
 
   Widget SearchTile(String userName, String userEmail) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: Row(
         children: [
           Column(
@@ -86,11 +95,11 @@ class _SearchState extends State<Search> {
             children: [
               Text(
                 userName,
-                style: simpleTextStyle(),
+                style: TextStyle(color: Colors.white, fontSize: 20),
               ),
               Text(
                 userEmail,
-                style: simpleTextStyle(),
+                style: TextStyle(color: Colors.white54, fontSize: 15),
               )
             ],
           ),
@@ -102,9 +111,9 @@ class _SearchState extends State<Search> {
             child: Container(
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(30)),
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Icon(
-                Icons.message,
+                Icons.message_rounded,
                 color: Colors.white,
               ), //하얀색 메시지 아이콘
             ),
@@ -113,16 +122,6 @@ class _SearchState extends State<Search> {
       ),
     );
   }
-
-
-
-  @override
-  void initState() {
-    initiateSearch();
-    super.initState();
-  }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -138,18 +137,21 @@ class _SearchState extends State<Search> {
               child: Column(
                 children: [
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                    color: Color(0x54FFFFFF),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Color(0x99FFFFFF),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
                     child: Row(
                       children: [
                         Expanded(
                           child: TextField(
                             controller: searchTextEditingController,
-                            style: simpleTextStyle(),
+                            style: TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                                 hintText: "사용자 이름..",
                                 hintStyle: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black54,
                                   fontSize: 16,
                                 ),
                                 border: InputBorder.none),
@@ -160,22 +162,29 @@ class _SearchState extends State<Search> {
                             initiateSearch();
                           },
                           child: Container(
-                              height: 40,
-                              width: 40,
+                              height: 50,
+                              width: 50,
                               decoration: BoxDecoration(
                                   color: Colors.white24,
-                                  borderRadius: BorderRadius.circular(40)),
-                              padding: EdgeInsets.all(12),
+                                  borderRadius: BorderRadius.circular(45)),
+                              padding: EdgeInsets.all(10),
                               child: Icon(
-                                Icons.search,
-                                color: Colors.white,
-                                size: 20,
+                                Icons.person_search_rounded,
+                                color: Colors.black,
+                                size: 30,
                               )),
                         )
                       ],
                     ),
                   ),
-                  searchList()
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xff1F1F1F),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: searchList(),
+                  )
+
                 ],
               ),
             ),
