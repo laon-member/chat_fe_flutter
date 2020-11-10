@@ -8,7 +8,6 @@ import 'package:chat_app/views/search.dart';
 import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class ChatRoom extends StatefulWidget {
   @override
@@ -26,14 +25,16 @@ class _ChatRoomState extends State<ChatRoom> {
       builder: (context, snapshot) {
         return snapshot.hasData
             ? ListView.builder(
-            itemCount: snapshot.data.documents.length,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              return ChatRoomsTile(
-                snapshot.data.documents[index].data['chatroomId'].toString().replaceAll("_", "").replaceAll(Constants.myName, ""),
-                snapshot.data.documents[index].data['chatroomId']
-              );
-            })
+                itemCount: snapshot.data.documents.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  return ChatRoomsTile(
+                      snapshot.data.documents[index].data['chatroomId']
+                          .toString()
+                          .replaceAll("_", "")
+                          .replaceAll(Constants.myName, ""),
+                      snapshot.data.documents[index].data['chatroomId']);
+                })
             : Container();
       },
     );
@@ -59,9 +60,14 @@ class _ChatRoomState extends State<ChatRoom> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(Constants.myName.toString(),),
+        title: Text(
+          Constants.myName.toString(),
+        ),
         actions: [
           GestureDetector(
+            // onLongPress: () {
+            //   Tooltip(message: 'logout', child: build(context),);
+            // },
             onTap: () {
               authService.signOut();
               Navigator.pushReplacement(context,
@@ -77,10 +83,10 @@ class _ChatRoomState extends State<ChatRoom> {
       resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.search),
+        tooltip: '검색',
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(
-              builder: (context) => Search()
-          ));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Search()));
         },
       ),
     );
@@ -90,15 +96,17 @@ class _ChatRoomState extends State<ChatRoom> {
 class ChatRoomsTile extends StatelessWidget {
   final String userName;
   final String chatRoomId;
+
   ChatRoomsTile(this.userName, this.chatRoomId);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(
-            builder: (context) => ConversationScreen(this.chatRoomId)
-        ));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => ConversationScreen(this.chatRoomId)));
       },
       child: Container(
         color: Colors.black26,
@@ -110,15 +118,20 @@ class ChatRoomsTile extends StatelessWidget {
               width: 40,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.circular(40)
+                  color: Colors.blue, borderRadius: BorderRadius.circular(40)),
+              child: Text(
+                "${userName.substring(0, 1).toUpperCase()}",
+                style: mediumTextStyle(),
               ),
-              child: Text("${userName.substring(0,1).toUpperCase()}",
-                style: mediumTextStyle(),),
             ),
-            SizedBox(width: 8,),
+            SizedBox(
+              width: 8,
+            ),
             Container(
-                child: Text(userName, style: TextStyle(color: Colors.white, fontSize: 20),),
+              child: Text(
+                userName,
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
             ),
           ],
         ),
