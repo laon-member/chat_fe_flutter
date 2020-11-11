@@ -63,7 +63,6 @@ class _ChatRoomState extends State<ChatRoom> {
         title: Text(
           Constants.myName.toString(),
         ),
-        backgroundColor: Color(0xff2F2F2F),
         elevation: 0,
         actions: [
           GestureDetector(
@@ -82,11 +81,10 @@ class _ChatRoomState extends State<ChatRoom> {
         ],
       ),
       body: Container(
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          color: Color(0xff1F1F1F),
-          borderRadius: BorderRadius.circular(20),
-        ),
+          decoration: BoxDecoration(
+            color: ThemeData.dark().primaryColorDark,
+            borderRadius: BorderRadius.circular(20),
+          ),
         child: chatRoomsList(),
       ),
       resizeToAvoidBottomPadding: false,
@@ -119,9 +117,6 @@ class ChatRoomsTile extends StatelessWidget {
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        decoration: BoxDecoration(
-          color: Colors.black54,
-        ),
         child: Row(
           children: [
             Container(

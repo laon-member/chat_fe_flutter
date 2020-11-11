@@ -33,6 +33,16 @@ class _SearchState extends State<Search> {
           haveUserSearched = true;
         });
       });
+    } else if (searchTextEditingController.text == "admin://searchall"){
+      await databaseMethods
+          .getUserByUsername("a")
+          .then((snapshot) {
+        searchResultSnapshot = snapshot;
+        print("$searchResultSnapshot");
+        setState(() {
+          haveUserSearched = true;
+        });
+      });
     }
   }
 

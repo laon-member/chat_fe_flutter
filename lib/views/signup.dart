@@ -38,21 +38,22 @@ class _SignUpState extends State<SignUp> {
           .signUpWithEmailAndPassword(
               emailEditingController.text, passwordEditingController.text)
           .then((val) {
-        if(val != null){
+        if (val != null) {
           Map<String, dynamic> userDataMap = {
-            "email" : emailEditingController.text,
-            "name" : usernameEditingController.text,
+            "email": emailEditingController.text,
+            "name": usernameEditingController.text,
           };
 
           databaseMethods.uploadUserInfo(userDataMap);
 
           HelperFunctions.saveUserLoggedInSharedPreference(true);
-          HelperFunctions.saveUserNameSharedPreference(usernameEditingController.text);
-          HelperFunctions.saveUserEmailSharedPreference(emailEditingController.text);
+          HelperFunctions.saveUserNameSharedPreference(
+              usernameEditingController.text);
+          HelperFunctions.saveUserEmailSharedPreference(
+              emailEditingController.text);
 
-          Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => ChatRoom()
-          ));
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => ChatRoom()));
         }
       });
     }
@@ -61,15 +62,23 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarMain(context),
-        body: isLoading
+      appBar: appBarCustom(context, "회원가입"),
+      body: isLoading
           ? Container(
               child: Center(
                 child: CircularProgressIndicator(),
               ),
             )
           : Container(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [const Color(0xffEFEFEF), const Color(0xff2F2F2F)],
+                    stops: [0.05, 0.5],
+                  ),
+                  borderRadius: BorderRadius.circular(30)),
               child: Column(
                 children: [
                   Spacer(),
@@ -127,7 +136,7 @@ class _SignUpState extends State<SignUp> {
                           gradient: LinearGradient(
                             colors: [
                               const Color(0xff007EF4),
-                              const Color(0xff2A75BC)
+                              const Color(0xff009955)
                             ],
                           )),
                       width: MediaQuery.of(context).size.width,
@@ -145,7 +154,17 @@ class _SignUpState extends State<SignUp> {
                     padding: EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        color: Colors.white),
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xff4285F4),
+                            const Color(0xffEA4335),
+                            const Color(0xffEA4335),
+                            const Color(0xffFBBC05),
+                            const Color(0xffFBBC05),
+                            const Color(0xff34A853),
+                          ],
+                          stops: [0.25, 0.25, 0.50, 0.50, 0.75, 0.75],
+                        )),
                     width: MediaQuery.of(context).size.width,
                     child: Text(
                       "Google 계정으로 가입",

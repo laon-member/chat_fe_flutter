@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 Widget appBarMain(BuildContext context) {
   return AppBar(
-    title: Image.asset(
-      "assets/images/logo.png",
-      height: 40,
-    ),
+    title: Text("Chatting Us"),
     elevation: 0.0,
-    centerTitle: false,
+    centerTitle: true,
+  );
+}
+
+Widget appBarCustom(BuildContext context, String text){
+  return AppBar(
+    title: Text(text),
+    elevation: 0.0,
+    centerTitle: true,
   );
 }
 
 InputDecoration textFieldInputDecoration(String hintText) {
+
   return InputDecoration(
       hintText: hintText,
-      hintStyle: TextStyle(color: Colors.white54),
+      hintStyle: TextStyle(color: Colors.white54,),
       focusedBorder:
           UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
       enabledBorder:
@@ -26,9 +33,13 @@ TextStyle simpleTextStyle() {
 }
 
 TextStyle biggerTextStyle() {
-  return TextStyle(color: Colors.white, fontSize: 17);
+  return TextStyle(color: Colors.white, fontSize: 18);
 }
 
 TextStyle mediumTextStyle() {
   return TextStyle(color: Colors.white, fontSize: 16);
+}
+
+TextStyle smallTextStyle() {
+  return TextStyle(color: Colors.white, fontSize: 10);
 }

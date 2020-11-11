@@ -10,33 +10,35 @@ import 'package:flutter/material.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleView;
+
   SignIn(this.toggleView);
 
   @override
   _SignInState createState() => _SignInState();
 }
-TextEditingController emailTextEditingController = new TextEditingController();
-TextEditingController passwordTextEditingController = new TextEditingController();
-AuthService authService = new AuthService();
-class _SignInState extends State<SignIn> {
 
+TextEditingController emailTextEditingController = new TextEditingController();
+TextEditingController passwordTextEditingController =
+    new TextEditingController();
+AuthService authService = new AuthService();
+
+class _SignInState extends State<SignIn> {
   final formKey = GlobalKey<FormState>();
 
   bool isLoading = false;
 
   signIn() async {
-
     if (formKey.currentState.validate()) {
       setState(() {
         isLoading = true;
       });
       await authService
-          .signInWithEmailAndPassword(
-          emailTextEditingController.text, passwordTextEditingController.text)
+          .signInWithEmailAndPassword(emailTextEditingController.text,
+              passwordTextEditingController.text)
           .then((result) async {
-        if (result != null)  {
-          QuerySnapshot userInfoSnapshot =
-          await DatabaseMethods().getUserByEmail(emailTextEditingController.text);
+        if (result != null) {
+          QuerySnapshot userInfoSnapshot = await DatabaseMethods()
+              .getUserByEmail(emailTextEditingController.text);
 
           HelperFunctions.saveUserLoggedInSharedPreference(true);
           HelperFunctions.saveUserNameSharedPreference(
@@ -58,14 +60,22 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: appBarMain(context),
-        //resizeToAvoidBottomPadding: false,
-        body: isLoading
+      appBar: appBarCustom(context, "모두 다 함께! Chatting US"),
+      //resizeToAvoidBottomPadding: false,
+      body: isLoading
           ? Container(
               child: Center(child: CircularProgressIndicator()),
             )
           : Container(
-              padding: EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [const Color(0xffEFEFEF), const Color(0xff2F2F2F)],
+                    stops: [0.05, 0.5],
+                  ),
+                  borderRadius: BorderRadius.circular(30)),
               child: Column(
                 children: [
                   Spacer(),
@@ -136,7 +146,7 @@ class _SignInState extends State<SignIn> {
                           gradient: LinearGradient(
                             colors: [
                               const Color(0xff007EF4),
-                              const Color(0xff2A75BC)
+                              const Color(0xff009955)
                             ],
                           )),
                       width: MediaQuery.of(context).size.width,
@@ -154,7 +164,17 @@ class _SignInState extends State<SignIn> {
                     padding: EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        color: Colors.white),
+                        gradient: LinearGradient(
+                          colors: [
+                            const Color(0xff4285F4),
+                            const Color(0xffEA4335),
+                            const Color(0xffEA4335),
+                            const Color(0xffFBBC05),
+                            const Color(0xffFBBC05),
+                            const Color(0xff34A853),
+                          ],
+                          stops: [0.25, 0.25, 0.50, 0.50, 0.75, 0.75],
+                        )),
                     width: MediaQuery.of(context).size.width,
                     child: Text(
                       "Google 계정으로 로그인",
