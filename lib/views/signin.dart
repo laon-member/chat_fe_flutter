@@ -72,7 +72,7 @@ class _SignInState extends State<SignIn> {
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [const Color(0xffEFEFEF), const Color(0xff2F2F2F)],
+                    colors: [const Color(0x002F2F2F), const Color(0xff2F2F2F)],
                     stops: [0.05, 0.5],
                   ),
                   borderRadius: BorderRadius.circular(15)),
