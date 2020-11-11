@@ -4,7 +4,6 @@ import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/helper/theme.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class SignUp extends StatefulWidget {
@@ -62,7 +61,7 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarCustom(context, "회원가입"),
+      appBar: appBarCustom(context, "회원가입", true),
       body: isLoading
           ? Container(
               child: Center(
@@ -78,7 +77,7 @@ class _SignUpState extends State<SignUp> {
                     colors: [const Color(0xffEFEFEF), const Color(0xff2F2F2F)],
                     stops: [0.05, 0.5],
                   ),
-                  borderRadius: BorderRadius.circular(30)),
+                  borderRadius: BorderRadius.circular(15)),
               child: Column(
                 children: [
                   Spacer(),

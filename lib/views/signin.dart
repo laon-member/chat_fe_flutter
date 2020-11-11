@@ -60,7 +60,7 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarCustom(context, "모두 다 함께! Chatting US"),
+      appBar: appBarCustom(context, "모두 다 함께! Chatting US", true),
       //resizeToAvoidBottomPadding: false,
       body: isLoading
           ? Container(
@@ -75,7 +75,7 @@ class _SignInState extends State<SignIn> {
                     colors: [const Color(0xffEFEFEF), const Color(0xff2F2F2F)],
                     stops: [0.05, 0.5],
                   ),
-                  borderRadius: BorderRadius.circular(30)),
+                  borderRadius: BorderRadius.circular(15)),
               child: Column(
                 children: [
                   Spacer(),

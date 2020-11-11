@@ -83,7 +83,7 @@ class _ChatRoomState extends State<ChatRoom> {
       body: Container(
           decoration: BoxDecoration(
             color: ThemeData.dark().primaryColorDark,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(15),
           ),
         child: chatRoomsList(),
       ),

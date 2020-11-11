@@ -42,7 +42,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             : Container(
         decoration: BoxDecoration(
         color: Color(0x99FFFFFF),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(15),
         ));
       },
     );
@@ -99,7 +99,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               margin: const EdgeInsets.only(bottom: 80),
               decoration: BoxDecoration(
                 color: Color(0xff1F1F1F),
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
               ),
                 child: ChatMessageList(),
             ),
@@ -108,7 +108,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   color: Color(0x99FFFFFF),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(15),
                 ),
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(

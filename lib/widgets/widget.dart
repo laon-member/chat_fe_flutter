@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 Widget appBarMain(BuildContext context) {
   return AppBar(
@@ -9,11 +8,11 @@ Widget appBarMain(BuildContext context) {
   );
 }
 
-Widget appBarCustom(BuildContext context, String text){
+Widget appBarCustom(BuildContext context, String text, bool iscenterTitle){
   return AppBar(
     title: Text(text),
     elevation: 0.0,
-    centerTitle: true,
+    centerTitle: iscenterTitle,
   );
 }
 

@@ -150,7 +150,7 @@ class _SearchState extends State<Search> {
                     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                       color: Color(0x99FFFFFF),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     child: Row(
                       children: [
@@ -190,7 +190,7 @@ class _SearchState extends State<Search> {
                   Container(
                     decoration: BoxDecoration(
                       color: Color(0xff1F1F1F),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     child: searchList(),
                   )

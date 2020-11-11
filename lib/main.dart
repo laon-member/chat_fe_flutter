@@ -22,7 +22,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     getLoggedInState();
-
     var brightness = SchedulerBinding.instance.window.platformBrightness;
     bool darkModeOn = brightness == Brightness.dark;
     if(darkModeOn) {
@@ -40,7 +39,6 @@ class _MyAppState extends State<MyApp> {
         systemNavigationBarIconBrightness: Brightness.dark,// navigation bar color
       ));
     }
-
     super.initState();
   }
 
