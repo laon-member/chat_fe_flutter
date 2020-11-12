@@ -3,20 +3,19 @@ import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/views/chatRoomsScreen.dart';
 import 'package:chat_app/views/conversation_screen.dart';
-import 'package:chat_app/views/friendsScreen.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
-class ChatRoom extends StatefulWidget {
-
+class FriendsScreen extends StatefulWidget {
   @override
-  _ChatRoomState createState() => _ChatRoomState();
+  _FriendsScreenState createState() => _FriendsScreenState();
 }
 
-class _ChatRoomState extends State<ChatRoom> {
+class _FriendsScreenState extends State<FriendsScreen> {
   AuthService authMethods = new AuthService();
   DatabaseMethods databaseMethods = new DatabaseMethods();
   Stream chatRooms;
@@ -31,21 +30,17 @@ class _ChatRoomState extends State<ChatRoom> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return ChatRoomsTile(
-                      snapshot.data.documents[index].data['chatroomId']
-                          .toString()
-                          .replaceAll("_", "")
-                          .replaceAll(Constants.myName, ""),
-                      snapshot.data.documents[index].data['chatroomId']);
+                      snapshot.data.documents[index].data['friendName'].toString(),
+                      snapshot.data.documents[index].data['friendId']);
                 })
             : Container();
       },
     );
   }
 
-  getUserInfogetChats() async {
+  getUserFriends() async {
     Constants.myName = await HelperFunctions.getUserNameSharedPreference();
-    Constants.myId = await HelperFunctions.getUserIdSharedPreference();
-    DatabaseMethods().getChatRooms(Constants.myId).then((value) {
+    DatabaseMethods().getFriends(Constants.myId).then((value) {
       setState(() {
         chatRooms = value;
         print("다음과 같은 데이터를 얻음: + ${value.toString()}\n이름: ${Constants.myName}");
@@ -55,7 +50,7 @@ class _ChatRoomState extends State<ChatRoom> {
 
   @override
   void initState() {
-    getUserInfogetChats();
+    getUserFriends();
     super.initState();
   }
 
@@ -64,7 +59,7 @@ class _ChatRoomState extends State<ChatRoom> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "${Constants.myName.toString()}의 채팅 목록",
+          "${Constants.myName.toString()}의 친구 목록",
         ),
         elevation: 0,
         actions: [
@@ -97,22 +92,22 @@ class _ChatRoomState extends State<ChatRoom> {
       ),
       resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.person_outline_rounded),
-        tooltip: '친구',
+        child: Icon(Icons.chat_rounded),
+        tooltip: '채팅 목록',
         onPressed: () {
           Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => FriendsScreen()));
+              context, MaterialPageRoute(builder: (context) => ChatRoom()));
         },
       ),
     );
   }
 }
 
-class ChatRoomsTile extends StatelessWidget {
+class FriendsTile extends StatelessWidget {
   final String userName;
   final String chatRoomId;
 
-  ChatRoomsTile(this.userName, this.chatRoomId);
+  FriendsTile(this.userName, this.chatRoomId);
 
   @override
   Widget build(BuildContext context) {

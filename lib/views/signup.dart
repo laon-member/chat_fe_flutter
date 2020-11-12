@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:chat_app/views/chatRoomsScreen.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
@@ -19,6 +21,10 @@ class _SignUpState extends State<SignUp> {
   TextEditingController emailEditingController = new TextEditingController();
   TextEditingController passwordEditingController = new TextEditingController();
   TextEditingController usernameEditingController = new TextEditingController();
+  static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random _rnd = Random();
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   AuthService authService = new AuthService();
   DatabaseMethods databaseMethods = new DatabaseMethods();
@@ -32,7 +38,7 @@ class _SignUpState extends State<SignUp> {
       setState(() {
         isLoading = true;
       });
-
+      String userId = getRandomString(20);
       await authService
           .signUpWithEmailAndPassword(
               emailEditingController.text, passwordEditingController.text)
@@ -41,15 +47,17 @@ class _SignUpState extends State<SignUp> {
           Map<String, dynamic> userDataMap = {
             "email": emailEditingController.text,
             "name": usernameEditingController.text,
+            "userId": userId,
           };
 
-          databaseMethods.uploadUserInfo(userDataMap);
+          databaseMethods.uploadUserInfo(userId, userDataMap);
 
           HelperFunctions.saveUserLoggedInSharedPreference(true);
           HelperFunctions.saveUserNameSharedPreference(
               usernameEditingController.text);
           HelperFunctions.saveUserEmailSharedPreference(
               emailEditingController.text);
+          HelperFunctions.saveUserIdSharedPreference(userId);
 
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => ChatRoom()));

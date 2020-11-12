@@ -2,7 +2,6 @@ import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/views/chatRoomsScreen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 void main() {
@@ -22,23 +21,23 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     getLoggedInState();
-    var brightness = SchedulerBinding.instance.window.platformBrightness;
-    bool darkModeOn = brightness == Brightness.dark;
-    if(darkModeOn) {
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: Color(0xff2F2F2F),
-        systemNavigationBarColor: Color(0xff2F2F2F),
-        systemNavigationBarDividerColor: Color(0xff2F2F2F),
-        systemNavigationBarIconBrightness: Brightness.light,// navigation bar color
-      ));
-    } else {
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: Color(0xffEFEFEF),
-        systemNavigationBarColor: Color(0xffEFEFEF),
-        systemNavigationBarDividerColor: Color(0xffEFEFEF),
-        systemNavigationBarIconBrightness: Brightness.dark,// navigation bar color
-      ));
-    }
+    // var brightness = SchedulerBinding.instance.window.platformBrightness;
+    // bool darkModeOn = brightness == Brightness.dark;
+    // if(darkModeOn) {
+    //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    //     statusBarColor: Color(0xff2F2F2F),
+    //     systemNavigationBarColor: Color(0xff2F2F2F),
+    //     systemNavigationBarDividerColor: Color(0xff2F2F2F),
+    //     systemNavigationBarIconBrightness: Brightness.light,// navigation bar color
+    //   ));
+    // } else {
+    //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    //     statusBarColor: Color(0xffEFEFEF),
+    //     systemNavigationBarColor: Color(0xffEFEFEF),
+    //     systemNavigationBarDividerColor: Color(0xffEFEFEF),
+    //     systemNavigationBarIconBrightness: Brightness.dark,// navigation bar color
+    //   ));
+    // }
     super.initState();
   }
 
@@ -61,6 +60,7 @@ class _MyAppState extends State<MyApp> {
         primaryColor: Color(0xffEFEFEF),
         primaryColorBrightness: Brightness.light,
         scaffoldBackgroundColor: Color(0xFFEFEFEF),
+        bottomAppBarColor: Color(0xFFEFEFEF),
         primaryColorDark: Color(0xffBFBFBF),
         accentColor: Color(0xff007EF4),
         fontFamily: "OverpassRegular",
@@ -71,6 +71,7 @@ class _MyAppState extends State<MyApp> {
       darkTheme: ThemeData(
         primaryColor: Color(0xff2F2F2F),
         scaffoldBackgroundColor: Color(0xff2F2F2F),
+        bottomAppBarColor: Color(0xff2F2F2F),
         accentColor: Color(0xff007EF4),
         fontFamily: "OverpassRegular",
         visualDensity: VisualDensity.adaptivePlatformDensity,

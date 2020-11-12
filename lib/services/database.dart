@@ -18,13 +18,32 @@ class DatabaseMethods {
         .getDocuments();
   }
 
-  uploadUserInfo(userMap) {
-    Firestore.instance.collection("users");
+  uploadUserInfo(String userId, userMap) {
     Firestore.instance
-        .collection("users").add(userMap)
+        .collection("users")
+        .document(userId)
+        .setData(userMap)
         .catchError((e) {
       print("에러!: ${e.toString()}");
     });
+  }
+
+  ///친구 목록을 얻어옵니다.
+  getFriends(String userId) async {
+    return await Firestore.instance
+        .collection("users")
+        .document(userId)
+        .collection("friends")
+        .orderBy("name", descending: false)
+        .snapshots();
+  }
+
+  addFriends(String userId, friendMap) {
+    Firestore.instance
+        .collection("users")
+        .document(userId)
+        .collection("friends")
+        .add(friendMap);
   }
 
   Future<bool> CreateChatRoom(String charRoomId, chatRoomMap) {
@@ -38,14 +57,6 @@ class DatabaseMethods {
   }
 
   getConversationMessages(String chatRoomId) async {
-    // Firestore.instance.collection("ChatRoom")
-    //     .where("chatroomId", isEqualTo: chatRoomId)
-    //     .getDocuments();
-    // return await Firestore.instance.collection("ChatRoom")
-    //     .document()
-    //     .collection("chats")
-    //     .orderBy("time", descending: true)
-    //     .snapshots();
     return await Firestore.instance
         .collection("ChatRoom")
         .document(chatRoomId)
@@ -65,10 +76,10 @@ class DatabaseMethods {
     });
   }
 
-  getChatRooms(String userName) async {
+  getChatRooms(String userId) async {
     return await Firestore.instance
         .collection("ChatRoom")
-        .where("users", arrayContains: userName)
+        .where("users", arrayContains: userId)
         .snapshots();
   }
 }

@@ -45,7 +45,8 @@ class _SignInState extends State<SignIn> {
               userInfoSnapshot.documents[0].data["name"]);
           HelperFunctions.saveUserEmailSharedPreference(
               userInfoSnapshot.documents[0].data["email"]);
-
+          HelperFunctions.saveUserIdSharedPreference(
+              userInfoSnapshot.documents[0].data["userId"]);
           Navigator.pushReplacement(
               context, MaterialPageRoute(builder: (context) => ChatRoom()));
         } else {

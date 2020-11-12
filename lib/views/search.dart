@@ -1,6 +1,5 @@
-import 'package:chat_app/helper/constants.dart';
+import 'dart:math';
 import 'package:chat_app/services/database.dart';
-import 'package:chat_app/views/conversation_screen.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -21,21 +20,16 @@ class _SearchState extends State<Search> {
   bool isLoading = false;
   bool haveUserSearched = false;
 
+  static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random _rnd = Random();
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
   ///사람을 검색할 때 사용합니다. 이 경우 검색창이 비어있지 않아야 합니다.
   initiateSearch() async {
     if (searchTextEditingController.text.isNotEmpty) {
       await databaseMethods
           .getUserByUsername(searchTextEditingController.text)
-          .then((snapshot) {
-        searchResultSnapshot = snapshot;
-        print("$searchResultSnapshot");
-        setState(() {
-          haveUserSearched = true;
-        });
-      });
-    } else if (searchTextEditingController.text == "admin://searchall"){
-      await databaseMethods
-          .getUserByUsername("a")
           .then((snapshot) {
         searchResultSnapshot = snapshot;
         print("$searchResultSnapshot");
@@ -62,40 +56,36 @@ class _SearchState extends State<Search> {
               return SearchTile(
                 searchResultSnapshot.documents[index].data["name"],
                 searchResultSnapshot.documents[index].data["email"],
+                searchResultSnapshot.documents[index].data["userId"],
               );
             })
         : Container();
   }
 
-///채팅방의 ID를 받아옵니다.
-  getChatRoomId(String a, String b) {
-    if (a.substring(0, 1).codeUnitAt(0) > b.substring(0, 1).codeUnitAt(0)) {
-      return "$b\_$a";
-    } else {
-      return "$a\_$b";
-    }
-  }
-
   /// 채팅방을 만들며 대화를 시작합니다. 그러나 본인에게는 메시지를 전송할 수 없습니다.
-  createChatroomAndStartConversation({String userName}) {
-    if (userName != Constants.myName) {
-      String chatRoomId = getChatRoomId(userName, Constants.myName);
-      List<String> users = [userName, Constants.myName];
-      Map<String, dynamic> charRoomMap = {
-        "users": users,
-        "chatroomId": chatRoomId
-      };
-      databaseMethods.CreateChatRoom(chatRoomId, charRoomMap);
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => ConversationScreen(chatRoomId)));
-    } else {
-      print("본인은 본인에게 메시지를 전송할 수 없어요.");
-    }
+  // createChatroomAndStartConversation({String userId}) {
+  //   if (userId != Constants.myId) {
+  //     String chatRoomId = getRandomString(20);
+  //     List<String> users = [userId, Constants.myId.toString()];
+  //     Map<String, dynamic> charRoomMap = {
+  //       "users": users,
+  //       "chatroomId": chatRoomId
+  //     };
+  //     databaseMethods.CreateChatRoom(chatRoomId, charRoomMap);
+  //     Navigator.push(
+  //         context,
+  //         MaterialPageRoute(
+  //             builder: (context) => ConversationScreen(chatRoomId)));
+  //   } else {
+  //     print("본인은 본인에게 메시지를 전송할 수 없어요.");
+  //   }
+  // }
+  addFriend({String userName, String userId}) {
+    Map<String, dynamic> friendMap = {"friendId": userId, "friendName": userName};
+    databaseMethods.addFriends(userId, friendMap);
   }
 
-  Widget SearchTile(String userName, String userEmail) {
+  Widget SearchTile(String userName, String userEmail, String userId) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: Row(
@@ -116,14 +106,14 @@ class _SearchState extends State<Search> {
           Spacer(),
           GestureDetector(
             onTap: () {
-              createChatroomAndStartConversation(userName: userName);
+              addFriend(userId: userId);
             },
             child: Container(
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Icon(
-                Icons.message_rounded,
+                Icons.person_add_rounded,
                 color: Colors.white,
               ), //하얀색 메시지 아이콘
             ),
