@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -19,11 +18,6 @@ class _SearchState extends State<Search> {
 
   bool isLoading = false;
   bool haveUserSearched = false;
-
-  static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  Random _rnd = Random();
-  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   ///사람을 검색할 때 사용합니다. 이 경우 검색창이 비어있지 않아야 합니다.
   initiateSearch() async {
@@ -63,23 +57,25 @@ class _SearchState extends State<Search> {
   }
 
   /// 채팅방을 만들며 대화를 시작합니다. 그러나 본인에게는 메시지를 전송할 수 없습니다.
-  // createChatroomAndStartConversation({String userId}) {
-  //   if (userId != Constants.myId) {
-  //     String chatRoomId = getRandomString(20);
-  //     List<String> users = [userId, Constants.myId.toString()];
-  //     Map<String, dynamic> charRoomMap = {
-  //       "users": users,
-  //       "chatroomId": chatRoomId
-  //     };
-  //     databaseMethods.CreateChatRoom(chatRoomId, charRoomMap);
-  //     Navigator.push(
-  //         context,
-  //         MaterialPageRoute(
-  //             builder: (context) => ConversationScreen(chatRoomId)));
-  //   } else {
-  //     print("본인은 본인에게 메시지를 전송할 수 없어요.");
-  //   }
-  // }
+// createChatroomAndStartConversation({String userId, String myName, String userName}) {
+//   if (userId != Constants.myId) {
+//     String chatRoomId = getRandomString(20);
+//     List<String> users = [userId, Constants.myId.toString()];
+//     Map<String, dynamic> charRoomMap = {
+//       "users": users,
+//       "chatroomId": chatRoomId
+//       "chatName" = "$myName, $userName",
+//     };
+//     databaseMethods.CreateChatRoom(chatRoomId, charRoomMap);
+//     Navigator.push(
+//         context,
+//         MaterialPageRoute(
+//             builder: (context) => ConversationScreen(chatRoomId)));
+//   } else {
+//     print("본인은 본인에게 메시지를 전송할 수 없어요.");
+//   }
+// }
+
   addFriend({String userName, String userId}) {
     Map<String, dynamic> friendMap = {"friendId": userId, "friendName": userName};
     databaseMethods.addFriends(userId, friendMap);
@@ -106,7 +102,7 @@ class _SearchState extends State<Search> {
           Spacer(),
           GestureDetector(
             onTap: () {
-              addFriend(userId: userId);
+              addFriend(userName: userName, userId: userId);
             },
             child: Container(
               decoration: BoxDecoration(

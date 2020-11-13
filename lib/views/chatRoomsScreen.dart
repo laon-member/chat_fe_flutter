@@ -31,10 +31,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return ChatRoomsTile(
-                      snapshot.data.documents[index].data['chatroomId']
-                          .toString()
-                          .replaceAll("_", "")
-                          .replaceAll(Constants.myName, ""),
+                      snapshot.data.documents[index].data['chatName'],
                       snapshot.data.documents[index].data['chatroomId']);
                 })
             : Container();
@@ -109,10 +106,10 @@ class _ChatRoomState extends State<ChatRoom> {
 }
 
 class ChatRoomsTile extends StatelessWidget {
-  final String userName;
+  final String chatName;
   final String chatRoomId;
 
-  ChatRoomsTile(this.userName, this.chatRoomId);
+  ChatRoomsTile(this.chatName, this.chatRoomId);
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +118,7 @@ class ChatRoomsTile extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ConversationScreen(this.chatRoomId)));
+                builder: (context) => ConversationScreen(this.chatName, this.chatRoomId)));
       },
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -134,7 +131,7 @@ class ChatRoomsTile extends StatelessWidget {
               decoration: BoxDecoration(
                   color: Colors.blue, borderRadius: BorderRadius.circular(40)),
               child: Text(
-                "${userName.substring(0, 1).toUpperCase()}",
+                "${chatName.substring(0, 1).toUpperCase()}",
                 style: mediumTextStyle(),
               ),
             ),
@@ -143,7 +140,7 @@ class ChatRoomsTile extends StatelessWidget {
             ),
             Container(
               child: Text(
-                userName,
+                chatName,
                 style: TextStyle(color: Colors.white, fontSize: 20),
               ),
             ),

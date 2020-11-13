@@ -1,3 +1,4 @@
+import 'package:chat_app/helper/constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseMethods {
@@ -34,26 +35,8 @@ class DatabaseMethods {
         .collection("users")
         .document(userId)
         .collection("friends")
-        .orderBy("name", descending: false)
+        .orderBy("friendName", descending: false)
         .snapshots();
-  }
-
-  addFriends(String userId, friendMap) {
-    Firestore.instance
-        .collection("users")
-        .document(userId)
-        .collection("friends")
-        .add(friendMap);
-  }
-
-  Future<bool> CreateChatRoom(String charRoomId, chatRoomMap) {
-    Firestore.instance
-        .collection("ChatRoom")
-        .document(charRoomId)
-        .setData(chatRoomMap)
-        .catchError((e) {
-      print(e);
-    });
   }
 
   getConversationMessages(String chatRoomId) async {
@@ -65,6 +48,43 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  getChatRooms(String userId) async {
+    return await Firestore.instance
+        .collection("ChatRoom")
+        .where("users", arrayContains: userId)
+        .snapshots();
+  }
+
+  isAlreadyExistChatRooms(String userId) async {
+    return await Firestore.instance
+        .collection("ChatRoom")
+        .where("users", arrayContains: "${userId}&&${Constants.myId}")
+        .snapshots();
+  }
+
+  addFriends(String userId, friendMap) {
+    Firestore.instance
+        .collection("users")
+        .document(Constants.myId)
+        .collection("friends")
+        .document(Constants.myId)
+        .setData(friendMap);
+  }
+
+  addMember(userMap, String chatRoomId) {
+    Firestore.instance.collection("ChatRoom").document(chatRoomId).updateData(userMap);
+  }
+
+  Future<bool> CreateChatRoom(String chatRoomId, chatRoomMap) {
+    Firestore.instance
+        .collection("ChatRoom")
+        .document(chatRoomId)
+        .setData(chatRoomMap)
+        .catchError((e) {
+      print(e);
+    });
+  }
+
   addConversationMessages(String chatRoomId, messageMap) {
     Firestore.instance
         .collection("ChatRoom")
@@ -74,12 +94,5 @@ class DatabaseMethods {
         .catchError((e) {
       print(e.toString());
     });
-  }
-
-  getChatRooms(String userId) async {
-    return await Firestore.instance
-        .collection("ChatRoom")
-        .where("users", arrayContains: userId)
-        .snapshots();
   }
 }

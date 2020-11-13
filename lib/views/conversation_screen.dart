@@ -1,14 +1,16 @@
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
 ///conversation : 대화(nown)
 ///상대방과 대화할 수 있는 스크린 입니다.
 ///일반 사용자들은 이 스크린을 흔히 "대화방" 혹은 "톡방"으로 부릅니다.
 class ConversationScreen extends StatefulWidget {
+  final String chatName;
   final String chatRoomId;
 
-  ConversationScreen(this.chatRoomId);
+  ConversationScreen(this.chatName, this.chatRoomId);
 
   @override
   _ConversationScreenState createState() => _ConversationScreenState();
@@ -37,13 +39,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       snapshot.data.documents[index].data["message"],
                       snapshot.data.documents[index].data["sendBy"] ==
                           Constants.myName,
-                      snapshot.data.documents[index].data["time"]);
+                      snapshot.data.documents[index].data["time"],
+                      snapshot.data.documents[index].data["sendBy"]);
                 })
             : Container(
-        decoration: BoxDecoration(
-        color: Color(0x99FFFFFF),
-        borderRadius: BorderRadius.circular(15),
-        ));
+                decoration: BoxDecoration(
+                color: Color(0x99FFFFFF),
+                borderRadius: BorderRadius.circular(15),
+              ));
       },
     );
   }
@@ -86,9 +89,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
     return Scaffold(
       appBar: AppBar(
-          title: Text(widget.chatRoomId
-              .replaceAll("_", "")
-              .replaceAll(Constants.myName, "")),
+        title: Text(widget.chatName),
         elevation: 0,
       ),
       body: Container(
@@ -101,7 +102,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 color: Color(0xff1F1F1F),
                 borderRadius: BorderRadius.circular(15),
               ),
-                child: ChatMessageList(),
+              child: ChatMessageList(),
             ),
             Container(
               alignment: Alignment.bottomCenter,
@@ -158,8 +159,9 @@ class MessageTile extends StatelessWidget {
   final String message;
   final bool isSendByMe;
   final String time;
+  final String sendBy;
 
-  MessageTile(this.message, this.isSendByMe, this.time);
+  MessageTile(this.message, this.isSendByMe, this.time, this.sendBy);
 
   @override
   Widget build(BuildContext context) {
@@ -174,6 +176,32 @@ class MessageTile extends StatelessWidget {
         crossAxisAlignment:
             isSendByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
+          isSendByMe ? Row() : Row(
+            children: [
+              Container(
+                height: 30,
+                width: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(40)),
+                child: Text(
+                  "${sendBy.substring(0, 1).toUpperCase()}",
+                  style: mediumTextStyle(),
+                ),
+              ),
+              SizedBox(
+                width: 8,
+              ),
+              Container(
+                child: Text(
+                  sendBy,
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
+              ),
+            ],
+          ),
+          isSendByMe ? Container() : SizedBox(height: 3),
           Container(
             margin: isSendByMe
                 ? EdgeInsets.only(left: 20)

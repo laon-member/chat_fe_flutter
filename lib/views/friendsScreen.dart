@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
@@ -18,19 +20,27 @@ class FriendsScreen extends StatefulWidget {
 class _FriendsScreenState extends State<FriendsScreen> {
   AuthService authMethods = new AuthService();
   DatabaseMethods databaseMethods = new DatabaseMethods();
-  Stream chatRooms;
+  Stream friends;
 
-  Widget chatRoomsList() {
+  static const _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random _rnd = Random();
+
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
+  Widget friendsList() {
     return StreamBuilder(
-      stream: chatRooms,
+      stream: friends,
       builder: (context, snapshot) {
         return snapshot.hasData
             ? ListView.builder(
                 itemCount: snapshot.data.documents.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  return ChatRoomsTile(
-                      snapshot.data.documents[index].data['friendName'].toString(),
+                  return FriendsTile(
+                      snapshot.data.documents[index].data['friendName']
+                          .toString(),
                       snapshot.data.documents[index].data['friendId']);
                 })
             : Container();
@@ -40,9 +50,10 @@ class _FriendsScreenState extends State<FriendsScreen> {
 
   getUserFriends() async {
     Constants.myName = await HelperFunctions.getUserNameSharedPreference();
+    Constants.myId = await HelperFunctions.getUserIdSharedPreference();
     DatabaseMethods().getFriends(Constants.myId).then((value) {
       setState(() {
-        chatRooms = value;
+        friends = value;
         print("다음과 같은 데이터를 얻음: + ${value.toString()}\n이름: ${Constants.myName}");
       });
     });
@@ -88,7 +99,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
           color: ThemeData.dark().primaryColorDark,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: chatRoomsList(),
+        child: friendsList(),
       ),
       resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
@@ -101,49 +112,70 @@ class _FriendsScreenState extends State<FriendsScreen> {
       ),
     );
   }
-}
 
-class FriendsTile extends StatelessWidget {
-  final String userName;
-  final String chatRoomId;
-
-  FriendsTile(this.userName, this.chatRoomId);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+  /// 채팅방을 만들며 대화를 시작합니다. 그러나 본인에게는 메시지를 전송할 수 없습니다.
+  createChatroomAndStartConversation({String userId, String userName}) {
+    if (userId != Constants.myId) {
+        print("${databaseMethods.isAlreadyExistChatRooms(userId)}");
+        String chatRoomId = getRandomString(20);
+        List<String> users = [userId, Constants.myId.toString()];
+        Map<String, dynamic> chatRoomMap = {
+          "users": users,
+          "chatroomId": chatRoomId,
+          "chatName": "${Constants.myName}, $userName"
+        };
+        databaseMethods.CreateChatRoom(chatRoomId, chatRoomMap);
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => ConversationScreen(this.chatRoomId)));
-      },
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-        child: Row(
-          children: [
-            Container(
-              height: 40,
-              width: 40,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  color: Colors.blue, borderRadius: BorderRadius.circular(40)),
-              child: Text(
-                "${userName.substring(0, 1).toUpperCase()}",
-                style: mediumTextStyle(),
-              ),
+                builder: (context) => ConversationScreen(userName, chatRoomId)));
+    } else {
+      print("본인은 본인에게 메시지를 전송할 수 없어요.");
+    }
+  }
+}
+
+class FriendsTile extends StatelessWidget {
+  final String friendName;
+  final String friendId;
+
+  FriendsTile(this.friendName, this.friendId);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      child: Row(
+        children: [
+          Container(
+            height: 40,
+            width: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                color: Colors.blue, borderRadius: BorderRadius.circular(40)),
+            child: Text(
+              "${friendName.substring(0, 1).toUpperCase()}",
+              style: mediumTextStyle(),
             ),
-            SizedBox(
-              width: 8,
+          ),
+          SizedBox(
+            width: 8,
+          ),
+          Container(
+            child: Text(
+              friendName,
+              style: TextStyle(color: Colors.white, fontSize: 20),
             ),
-            Container(
-              child: Text(
-                userName,
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-            ),
-          ],
-        ),
+          ),
+          Spacer(),
+          IconButton(
+            icon: Icon(Icons.plus_one_rounded), color: Colors.white,
+            onPressed: () {
+              _FriendsScreenState().createChatroomAndStartConversation(
+                  userId: friendId, userName: friendName);
+            },
+          )
+        ],
       ),
     );
   }
