@@ -1,3 +1,4 @@
+import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -102,14 +103,14 @@ class _SearchState extends State<Search> {
           Spacer(),
           GestureDetector(
             onTap: () {
-              addFriend(userName: userName, userId: userId);
+              userId != Constants.myId ? addFriend(userName: userName, userId: userId) : null;
             },
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.blue, borderRadius: BorderRadius.circular(30)),
+                  color: userId == Constants.myId ? Colors.black54 : Colors.blue, borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Icon(
-                Icons.person_add_rounded,
+                userId == Constants.myId ? Icons.person_add_disabled : Icons.person_add_rounded,
                 color: Colors.white,
               ), //하얀색 메시지 아이콘
             ),
