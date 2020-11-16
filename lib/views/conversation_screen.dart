@@ -1,5 +1,6 @@
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
+import 'package:chat_app/views/friends_screen_check.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
@@ -91,6 +92,22 @@ class _ConversationScreenState extends State<ConversationScreen> {
       appBar: AppBar(
         title: Text(widget.chatName),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.exit_to_app_outlined),
+            tooltip: "나가기",
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.add),
+            tooltip: "초대",
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsCheckScreen(widget.chatRoomId, widget.chatName)));
+            },
+          ),
+        ],
       ),
       body: Container(
         child: Stack(
@@ -176,31 +193,33 @@ class MessageTile extends StatelessWidget {
         crossAxisAlignment:
             isSendByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          isSendByMe ? Row() : Row(
-            children: [
-              Container(
-                height: 30,
-                width: 30,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(40)),
-                child: Text(
-                  "${sendBy.substring(0, 1).toUpperCase()}",
-                  style: mediumTextStyle(),
+          isSendByMe
+              ? Row()
+              : Row(
+                  children: [
+                    Container(
+                      height: 30,
+                      width: 30,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          color: Colors.blue,
+                          borderRadius: BorderRadius.circular(40)),
+                      child: Text(
+                        "${sendBy.substring(0, 1).toUpperCase()}",
+                        style: mediumTextStyle(),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Container(
+                      child: Text(
+                        sendBy,
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(
-                width: 8,
-              ),
-              Container(
-                child: Text(
-                  sendBy,
-                  style: TextStyle(color: Colors.white, fontSize: 15),
-                ),
-              ),
-            ],
-          ),
           isSendByMe ? Container() : SizedBox(height: 3),
           Container(
             margin: isSendByMe

@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:chat_app/views/chatRoomsScreen.dart';
+import 'package:chat_app/views/chat_rooms_screen.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/helper/theme.dart';

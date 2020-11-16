@@ -1,33 +1,25 @@
-import 'dart:math';
-
-import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/services/auth.dart';
 import 'package:chat_app/services/database.dart';
-import 'package:chat_app/views/chatRoomsScreen.dart';
-import 'package:chat_app/views/conversation_screen.dart';
 import 'package:chat_app/views/search.dart';
-import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
-class FriendsScreen extends StatefulWidget {
+class FriendsCheckScreen extends StatefulWidget {
+  final String roomId;
+  final String chatName;
+
+  FriendsCheckScreen(this.roomId, this.chatName);
+
   @override
-  _FriendsScreenState createState() => _FriendsScreenState();
+  _FriendsCheckScreenState createState() => _FriendsCheckScreenState();
 }
 
-class _FriendsScreenState extends State<FriendsScreen> {
+class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
   AuthService authMethods = new AuthService();
   DatabaseMethods databaseMethods = new DatabaseMethods();
   Stream friends;
-
-  static const _chars =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  Random _rnd = Random();
-
-  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   Widget friendsList() {
     return StreamBuilder(
@@ -38,10 +30,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 itemCount: snapshot.data.documents.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
-                  return FriendsTile(
+                  return FriendsPlusTile(
                       snapshot.data.documents[index].data['friendName']
                           .toString(),
-                      snapshot.data.documents[index].data['friendId']);
+                      snapshot.data.documents[index].data['friendId'],
+                      widget.roomId.toString(),
+                    widget.chatName.toString()
+                  );
                 })
             : Container();
       },
@@ -54,14 +49,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
     DatabaseMethods().getFriends(Constants.myId).then((value) {
       setState(() {
         friends = value;
-        print("다음과 같은 데이터를 얻음: + ${value.toString()}\n이름: ${Constants.myName}");
+        print("!!채팅방 아이디: ${widget.roomId.toString()}");
       });
     });
   }
 
   @override
   void initState() {
-    getUserFriends();
+    this.getUserFriends();
     super.initState();
   }
 
@@ -70,17 +65,15 @@ class _FriendsScreenState extends State<FriendsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "${Constants.myName.toString()}의 친구 목록",
+          "${widget.roomId} 다른 사용자 초대",
         ),
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app_outlined),
-            tooltip: "로그아웃",
+            icon: Icon(Icons.check_rounded),
+            tooltip: "확인",
             onPressed: () {
-              authService.signOut();
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => Authenticate()));
+              Navigator.pop(context);
             },
           ),
           IconButton(
@@ -99,47 +92,28 @@ class _FriendsScreenState extends State<FriendsScreen> {
           color: ThemeData.dark().primaryColorDark,
           borderRadius: BorderRadius.circular(15),
         ),
-        child: friendsList(),
+        child: this.friendsList(),
       ),
       resizeToAvoidBottomPadding: false,
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.chat_rounded),
-        tooltip: '채팅 목록',
-        onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => ChatRoom()));
-        },
-      ),
+      // floatingActionButton: FloatingActionButton(
+      //   child: Icon(Icons.chat_rounded),
+      //   tooltip: '채팅 목록',
+      //   onPressed: () {
+      //     Navigator.pushReplacement(
+      //         context, MaterialPageRoute(builder: (context) => ChatRoom()));
+      //   },
+      // ),
     );
-  }
-
-  /// 채팅방을 만들며 대화를 시작합니다. 그러나 본인에게는 메시지를 전송할 수 없습니다.
-  createChatroomAndStartConversation({String userId, String userName}) {
-    if (userId != Constants.myId) {
-        print("${databaseMethods.isAlreadyExistChatRooms(userId)}");
-        String chatRoomId = getRandomString(20);
-        List<String> users = [userId, Constants.myId.toString()];
-        Map<String, dynamic> chatRoomMap = {
-          "users": users,
-          "chatroomId": chatRoomId,
-          "chatName": "${Constants.myName}, $userName"
-        };
-        databaseMethods.CreateChatRoom(chatRoomId, chatRoomMap);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => ConversationScreen(userName, chatRoomId)));
-    } else {
-      print("본인은 본인에게 메시지를 전송할 수 없어요.");
-    }
   }
 }
 
-class FriendsTile extends StatelessWidget {
+class FriendsPlusTile extends StatelessWidget {
   final String friendName;
   final String friendId;
+  final String roomId;
+  final String chatName;
 
-  FriendsTile(this.friendName, this.friendId);
+  FriendsPlusTile(this.friendName, this.friendId, this.roomId, this.chatName);
 
   @override
   Widget build(BuildContext context) {
@@ -168,13 +142,20 @@ class FriendsTile extends StatelessWidget {
             ),
           ),
           Spacer(),
-          IconButton(
-            icon: Icon(Icons.plus_one_rounded), color: Colors.white,
-            onPressed: () {
-              _FriendsScreenState().createChatroomAndStartConversation(
-                  userId: friendId, userName: friendName);
+          GestureDetector(
+            onTap: () {
+              DatabaseMethods().addMember(roomId, friendId, friendName, chatName);
             },
-          )
+            child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(30)),
+              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child: Icon(
+                Icons.person_add_rounded,
+                color: Colors.white,
+              ),
+            ),
+          ),
         ],
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
-import 'package:chat_app/views/chatRoomsScreen.dart';
+import 'package:chat_app/views/chat_rooms_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -78,7 +78,8 @@ class _MyAppState extends State<MyApp> {
         appBarTheme: AppBarTheme(brightness: Brightness.dark),
 
       ),
-      home: userIsLoggedIn != null ?  userIsLoggedIn ? ChatRoom() : Authenticate()
+      home:
+      userIsLoggedIn != null ?  userIsLoggedIn ? ChatRoom() : Authenticate()
           : Container(
         child: Center(
           child: Authenticate(),

@@ -55,6 +55,8 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  ///이미 둘이 참여한 방이 있는지 여부를 확인함.
+  ///TODO: 명령어가 확실치 않으니 다시 한 번 확인할 것.
   isAlreadyExistChatRooms(String userId) async {
     return await Firestore.instance
         .collection("ChatRoom")
@@ -62,17 +64,25 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  ///친구추가
   addFriends(String userId, friendMap) {
     Firestore.instance
         .collection("users")
         .document(Constants.myId)
         .collection("friends")
-        .document(Constants.myId)
+        .document(userId)
         .setData(friendMap);
   }
 
-  addMember(userMap, String chatRoomId) {
-    Firestore.instance.collection("ChatRoom").document(chatRoomId).updateData(userMap);
+  ///사용자 초대
+  addMember(
+      String chatRoomId, String friendId, String friendName, String chatName) {
+    Firestore.instance.collection("ChatRoom").document(chatRoomId).updateData({
+      'users': FieldValue.arrayUnion([friendId])
+    }).catchError((e) {
+      print(e);
+    });
+    //Firestore.instance.collection("ChatRoom").document(chatRoomId).updateData({'chatName': '$chatName, $friendName'});
   }
 
   Future<bool> CreateChatRoom(String chatRoomId, chatRoomMap) {
