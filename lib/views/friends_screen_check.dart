@@ -65,7 +65,7 @@ class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "${widget.roomId} 다른 사용자 초대",
+          "${widget.chatName}(으)로 다른 사용자 초대",
         ),
         elevation: 0,
         actions: [

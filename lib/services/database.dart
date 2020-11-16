@@ -82,7 +82,55 @@ class DatabaseMethods {
     }).catchError((e) {
       print(e);
     });
+    Map<String, dynamic> messageMap = {
+      "message":
+          "ⓘ정보ⓘ\n${Constants.myName} 님이 $friendName 님을 초대했습니다.\n$friendName 님! 피자는 가져오셨겠죠?",
+      "sendBy": Constants.myName,
+      "UNIXtime": DateTime.now().millisecondsSinceEpoch,
+      "date":
+          "${DateTime.now().year.toString()}년 ${DateTime.now().month.toString()}월 ${DateTime.now().day.toString()}일",
+      "time":
+          "${DateTime.now().hour.toString()}:${DateTime.now().minute < 10 ? "0" + DateTime.now().minute.toString() : DateTime.now().minute.toString()}",
+    };
+    DatabaseMethods().addConversationMessages(chatRoomId, messageMap);
     //Firestore.instance.collection("ChatRoom").document(chatRoomId).updateData({'chatName': '$chatName, $friendName'});
+  }
+
+  ///채팅방 이름 바꾸기
+  changeChatRoom(String chatRoomId, String newChatRoomName) {
+    Firestore.instance
+        .collection("ChatRoom")
+        .document(chatRoomId)
+        .updateData({'chatName': newChatRoomName}).catchError((e) {
+      print(e);
+    });
+    Map<String, dynamic> messageMap = {
+      "message":
+          "ⓘ정보ⓘ\n${Constants.myName} 님이 채팅방의 이름을 다음과 같이 바꿨습니다.\n일부 버전에서는 앱을 재실행하셔야 새로운 채팅방 이름이 적용됩니다. ඞඞ\n$newChatRoomName",
+      "sendBy": Constants.myName,
+      "UNIXtime": DateTime.now().millisecondsSinceEpoch,
+      "date":
+          "${DateTime.now().year.toString()}년 ${DateTime.now().month.toString()}월 ${DateTime.now().day.toString()}일",
+      "time":
+          "${DateTime.now().hour.toString()}:${DateTime.now().minute < 10 ? "0" + DateTime.now().minute.toString() : DateTime.now().minute.toString()}",
+    };
+    DatabaseMethods().addConversationMessages(chatRoomId, messageMap);
+  }
+
+  ///채팅방 이름 바꾸기
+  getOutChatRoom(String chatRoomId) {
+    Firestore.instance.collection("ChatRoom").document(chatRoomId).updateData(
+        {'users': FieldValue.arrayRemove([Constants.myId.toString()])});
+    Map<String, dynamic> messageMap = {
+      "message": "ⓘ정보ⓘ\n${Constants.myName} 님이 나갔습니다.",
+      "sendBy": Constants.myName,
+      "UNIXtime": DateTime.now().millisecondsSinceEpoch,
+      "date":
+          "${DateTime.now().year.toString()}년 ${DateTime.now().month.toString()}월 ${DateTime.now().day.toString()}일",
+      "time":
+          "${DateTime.now().hour.toString()}:${DateTime.now().minute < 10 ? "0" + DateTime.now().minute.toString() : DateTime.now().minute.toString()}",
+    };
+    DatabaseMethods().addConversationMessages(chatRoomId, messageMap);
   }
 
   Future<bool> CreateChatRoom(String chatRoomId, chatRoomMap) {

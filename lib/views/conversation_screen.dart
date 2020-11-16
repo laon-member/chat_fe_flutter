@@ -24,6 +24,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   Stream chatMessageStream;
 
+  TextEditingController chatNameTextEditingController =
+      new TextEditingController();
+
   // ignore: non_constant_identifier_names
   Widget ChatMessageList() {
     return StreamBuilder(
@@ -94,17 +97,79 @@ class _ConversationScreenState extends State<ConversationScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app_outlined),
-            tooltip: "나가기",
+            icon: Icon(Icons.edit_rounded),
+            tooltip: "채팅방 이름 바꾸기",
             onPressed: () {
-              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("새로운 채팅방 이름"),
+                    content: TextField(
+                      controller: chatNameTextEditingController,
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        hintText: "새로운 채팅방 이름..",
+                        hintStyle: TextStyle(
+                          color: Colors.black54,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ),
+                    actions: [
+                      FlatButton(
+                        child: Text("적용"),
+                        onPressed: () {
+                          DatabaseMethods().changeChatRoom(widget.chatRoomId, chatNameTextEditingController.text);
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.exit_to_app_outlined),
+            tooltip: "채팅방 나가기",
+            onPressed: () {
+              showDialog (
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("채팅방 나가기"),
+                    content: Text("채팅방을 나가시겠어요?\n다른 멤버가 다시 초대할 때 까지 채팅에 참여하실 수 없으며 보안을 위해 계정이 로그아웃 됩니다.",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    actions: [
+                      FlatButton(
+                        child: Text("취소"),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      FlatButton(
+                        child: Text("확인"),
+                        onPressed: () {
+                          DatabaseMethods().getOutChatRoom(widget.chatRoomId);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        },
+                      )
+                    ],
+                  );
+                },
+              );
             },
           ),
           IconButton(
             icon: Icon(Icons.add),
             tooltip: "초대",
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => FriendsCheckScreen(widget.chatRoomId, widget.chatName)));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => FriendsCheckScreen(
+                          widget.chatRoomId, widget.chatName)));
             },
           ),
         ],
