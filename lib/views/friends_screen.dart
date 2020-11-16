@@ -78,9 +78,32 @@ class _FriendsScreenState extends State<FriendsScreen> {
             icon: Icon(Icons.exit_to_app_outlined),
             tooltip: "로그아웃",
             onPressed: () {
-              authService.signOut();
-              Navigator.pushReplacement(context,
-                  MaterialPageRoute(builder: (context) => Authenticate()));
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  // return object of type Dialog
+                  return AlertDialog(
+                    title: new Text("로그아웃"),
+                    content: new Text("로그아웃 하시겠어요?\n로그아웃 이후 재로그인이 필요합니다."),
+                    actions: <Widget>[
+                      new FlatButton(
+                        child: new Text("취소"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      new FlatButton(
+                        child: new Text("여기를 길게 눌러 로그아웃"),
+                        onLongPress: () {Navigator.pop(context);
+                        authService.signOut();
+                        Navigator.pushReplacement(context,
+                            MaterialPageRoute(builder: (context) => Authenticate()));
+                        },
+                      )
+                    ],
+                  );
+                },
+              );
             },
           ),
           IconButton(
@@ -169,7 +192,7 @@ class FriendsTile extends StatelessWidget {
           ),
           Spacer(),
           IconButton(
-            icon: Icon(Icons.plus_one_rounded), color: Colors.white,
+            icon: Icon(Icons.add_comment_rounded), color: Colors.white, tooltip: "채팅방 만들기",
             onPressed: () {
               _FriendsScreenState().createChatroomAndStartConversation(
                   userId: friendId, userName: friendName);

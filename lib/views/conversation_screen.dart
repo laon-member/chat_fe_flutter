@@ -118,10 +118,45 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     ),
                     actions: [
                       FlatButton(
+                        child: Text("취소"),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      FlatButton(
                         child: Text("적용"),
                         onPressed: () {
-                          DatabaseMethods().changeChatRoom(widget.chatRoomId, chatNameTextEditingController.text);
-                          Navigator.pop(context);
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("채팅방 제목 새로운 이름으로 적용"),
+                                content: Text(
+                                  "채팅방 제목을 새로운 이름으로 변경할 경우 초대되어 있는 사용자 전체에게 이 제목이 적용됩니다.\n사용자간 갈등을 최대한 줄이기 위해 변경할 새로운 이름이 초대되어 있는 사용자 전체를 되도록 만족할 수 있도록 해주세요.\n제목변경으로 인한 책임은 모두 본인이 갖는다는 사실에 동의하는 것으로 간주됩니다.",
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                actions: [
+                                  FlatButton(
+                                    child: Text("취소"),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text("여기를 길게 눌러 확인"),
+                                    onLongPress: () {
+                                      DatabaseMethods().changeChatRoom(
+                                          widget.chatRoomId,
+                                          chatNameTextEditingController.text);
+                                      Navigator.pop(context);
+                                      Navigator.pop(context);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                       )
                     ],
@@ -134,12 +169,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
             icon: Icon(Icons.exit_to_app_outlined),
             tooltip: "채팅방 나가기",
             onPressed: () {
-              showDialog (
+              showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text("채팅방 나가기"),
-                    content: Text("채팅방을 나가시겠어요?\n다른 멤버가 다시 초대할 때 까지 채팅에 참여하실 수 없으며 보안을 위해 계정이 로그아웃 됩니다.",
+                    content: Text(
+                      "채팅방을 나가시겠어요?\n다른 멤버가 다시 초대할 때 까지 채팅에 참여하실 수 없으며 일부 버전의 경우 로그아웃이 진행될 수 있습니다.",
                       style: TextStyle(color: Colors.black),
                     ),
                     actions: [
@@ -148,13 +184,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         onPressed: () => Navigator.pop(context),
                       ),
                       FlatButton(
-                        child: Text("확인"),
-                        onPressed: () {
+                        child: Text("여기를 길게 눌러 나가기"),
+                        onLongPress: () {
                           DatabaseMethods().getOutChatRoom(widget.chatRoomId);
                           Navigator.pop(context);
                           Navigator.pop(context);
                         },
-                      )
+                      ),
                     ],
                   );
                 },
@@ -162,7 +198,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add_rounded),
             tooltip: "초대",
             onPressed: () {
               Navigator.push(
@@ -201,7 +237,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       controller: messageController,
                       style: TextStyle(color: Colors.black),
                       decoration: InputDecoration(
-                          hintText: "보낼 메시지 입력",
+                          hintText: "짧게 누르면 전송, 길게 누르면 파일첨부",
                           hintStyle: TextStyle(color: Colors.black54),
                           border: InputBorder.none),
                     )),
@@ -210,6 +246,28 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         messageController.text.isNotEmpty
                             ? sendMessage()
                             : null;
+                      },
+                      onLongPress: () {
+                        DatabaseMethods().uploadFile();
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            // return object of type Dialog
+                            return AlertDialog(
+                              title: new Text("파일첨부 기능은 준비중!"),
+                              content: new Text("아직은 준비중입니다! 기대해주세요!"),
+                              actions: <Widget>[
+                                new FlatButton(
+                                  child: new Text("확인!"),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                       child: Container(
                         height: 50,
@@ -220,7 +278,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         ),
                         padding: EdgeInsets.all(10),
                         child: Icon(
-                          Icons.send_rounded,
+                          Icons.add_comment_rounded,
                           color: Colors.white,
                           size: 25,
                         ),

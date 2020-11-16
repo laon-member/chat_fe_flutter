@@ -106,7 +106,7 @@ class DatabaseMethods {
     });
     Map<String, dynamic> messageMap = {
       "message":
-          "ⓘ정보ⓘ\n${Constants.myName} 님이 채팅방의 이름을 다음과 같이 바꿨습니다.\n일부 버전에서는 앱을 재실행하셔야 새로운 채팅방 이름이 적용됩니다. ඞඞ\n$newChatRoomName",
+          "ⓘ정보ⓘ\n${Constants.myName} 님이 채팅방의 이름을 다음과 같이 바꿨습니다.\n$newChatRoomName\n\n구 버전에서는 앱을 재실행하셔야 새로운 채팅방 이름이 적용됩니다. ඞඞ",
       "sendBy": Constants.myName,
       "UNIXtime": DateTime.now().millisecondsSinceEpoch,
       "date":
@@ -117,7 +117,7 @@ class DatabaseMethods {
     DatabaseMethods().addConversationMessages(chatRoomId, messageMap);
   }
 
-  ///채팅방 이름 바꾸기
+  ///채팅방 나감
   getOutChatRoom(String chatRoomId) {
     Firestore.instance.collection("ChatRoom").document(chatRoomId).updateData(
         {'users': FieldValue.arrayRemove([Constants.myId.toString()])});
@@ -153,4 +153,6 @@ class DatabaseMethods {
       print(e.toString());
     });
   }
+
+  void uploadFile() {}
 }
