@@ -27,12 +27,12 @@ class _ChatRoomState extends State<ChatRoom> {
       builder: (context, snapshot) {
         return snapshot.hasData
             ? ListView.builder(
-                itemCount: snapshot.data.documents.length,
+                itemCount: snapshot.data.docs.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return ChatRoomsTile(
-                      snapshot.data.documents[index].data['chatName'],
-                      snapshot.data.documents[index].data['chatroomId']);
+                      snapshot.data.docs[index].data()['chatName'],
+                      snapshot.data.docs[index].data()['chatroomId']);
                 })
             : Container();
       },

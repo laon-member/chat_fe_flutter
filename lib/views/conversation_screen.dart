@@ -1,6 +1,9 @@
+//import 'dart:html';
+
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/friends_screen_check.dart';
+import 'package:chat_app/views/upload_file.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:flutter/material.dart';
 
@@ -37,14 +40,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 reverse: true,
                 controller: _scrollController,
                 shrinkWrap: true,
-                itemCount: snapshot.data.documents.length,
+                itemCount: snapshot.data.docs.length,
                 itemBuilder: (context, index) {
                   return MessageTile(
-                      snapshot.data.documents[index].data["message"],
-                      snapshot.data.documents[index].data["sendBy"] ==
+                      snapshot.data.docs[index].data()["message"],
+                      snapshot.data.docs[index].data()["sendBy"] ==
                           Constants.myName,
-                      snapshot.data.documents[index].data["time"],
-                      snapshot.data.documents[index].data["sendBy"]);
+                      snapshot.data.docs[index].data()["time"],
+                      snapshot.data.docs[index].data()["sendBy"]);
                 })
             : Container(
                 decoration: BoxDecoration(
@@ -255,16 +258,27 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            // return object of type Dialog
                             return AlertDialog(
-                              title: new Text("파일첨부 기능은 준비중!"),
-                              content: new Text("아직은 준비중입니다! 기대해주세요!"),
-                              actions: <Widget>[
-                                new FlatButton(
-                                  child: new Text("확인!"),
+                              title: Text("파일 업로드"),
+                              content: Text("파일을 업로드하시겠어요?"),
+                              actions: [
+                                FlatButton(
+                                  child: Text("취소"),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                                FlatButton(
+                                  child: Text("업로드"),
                                   onPressed: () {
-                                    Navigator.pop(context);
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => UploadFile(widget.chatRoomId)));
                                   },
+                                  // onLongPress: () {
+                                  //   DatabaseMethods().getOutChatRoom(widget.chatRoomId);
+                                  //   Navigator.pop(context);
+                                  //   Navigator.pop(context);
+                                  // },
                                 ),
                               ],
                             );
@@ -295,6 +309,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
     );
   }
+
+  Toupload() {}
 }
 
 class MessageTile extends StatelessWidget {

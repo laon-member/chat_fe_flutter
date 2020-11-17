@@ -10,8 +10,9 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   ///사용자의 정보가 파이어베이스로부터 존재하는지 묻습니다. 없는 경우 null 값을 반환합니다.
-  User _userFromFirebaseUser(FirebaseUser user) {
-    return user != null ? User(uid: user.uid) : null;
+  // ignore: deprecated_member_use
+  ModelsUser _userFromFirebaseUser(User user) {
+    return user != null ? ModelsUser(uid: user.uid) : null;
   }
 
   ///가장 일반적인 방식인 이메일 및 비밀번호로 로그인 하는 방식 입니다.
@@ -19,9 +20,9 @@ class AuthService {
   ///옳지 않은 값이 있는 경우 null 값을 반환합니다.
   Future signInWithEmailAndPassword(String email, String password) async {
     try {
-      AuthResult result = await _auth.signInWithEmailAndPassword(
+      UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-      FirebaseUser user = result.user;
+      User user = result.user;
       return _userFromFirebaseUser(user);
     } catch (e) {
       print(e.toString());
@@ -35,12 +36,12 @@ class AuthService {
   Future signUpWithEmailAndPassword(String email, String password) async {
     //print("UPLOADING.. : 사용자 정보: $email, $password");
     try {
-      AuthResult result = await _auth
+      UserCredential result = await _auth
           .createUserWithEmailAndPassword(
           email: email,
           password: password
       );
-      FirebaseUser user = result.user;
+      User user = result.user;
       return _userFromFirebaseUser(user);
     } catch (e) {
       print("에러: ${e.toString()}");
@@ -57,7 +58,7 @@ class AuthService {
     }
   }
 
-  Future<FirebaseUser> signInWithGoogle(BuildContext context) async {
+  Future<User> signInWithGoogle(BuildContext context) async {
     final GoogleSignIn _googleSignIn = new GoogleSignIn();
 
     final GoogleSignInAccount googleSignInAccount =
@@ -65,12 +66,12 @@ class AuthService {
     final GoogleSignInAuthentication googleSignInAuthentication =
         await googleSignInAccount.authentication;
 
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
+    final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleSignInAuthentication.idToken,
         accessToken: googleSignInAuthentication.accessToken);
 
-    AuthResult result = await _auth.signInWithCredential(credential);
-    //FirebaseUser userDetails = result.user;
+    UserCredential result = await _auth.signInWithCredential(credential);
+    //User userDetails = result.user;
 
     if (result == null) {
     } else {

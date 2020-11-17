@@ -1,12 +1,16 @@
 import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/views/chat_rooms_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
   print("RUNNING... ${ThemeMode.system}");
+
   //SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
 }
 
