@@ -75,7 +75,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app_outlined),
+            icon: Icon(Icons.exit_to_app_rounded),
             tooltip: "로그아웃",
             onPressed: () {
               showDialog(
@@ -94,6 +94,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                       ),
                       new FlatButton(
                         child: new Text("여기를 길게 눌러 로그아웃"),
+                        onPressed:() {},
                         onLongPress: () {Navigator.pop(context);
                         authService.signOut();
                         Navigator.pushReplacement(context,
@@ -107,7 +108,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.search_rounded),
             tooltip: "검색",
             padding: EdgeInsets.symmetric(horizontal: 20),
             onPressed: () {

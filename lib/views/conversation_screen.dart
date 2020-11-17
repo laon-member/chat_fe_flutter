@@ -145,6 +145,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                   ),
                                   FlatButton(
                                     child: Text("여기를 길게 눌러 확인"),
+                                    onPressed: () {},
                                     onLongPress: () {
                                       DatabaseMethods().changeChatRoom(
                                           widget.chatRoomId,
@@ -166,7 +167,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.exit_to_app_outlined),
+            icon: Icon(Icons.exit_to_app_rounded),
             tooltip: "채팅방 나가기",
             onPressed: () {
               showDialog(
@@ -185,6 +186,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       ),
                       FlatButton(
                         child: Text("여기를 길게 눌러 나가기"),
+                        onPressed: () {},
                         onLongPress: () {
                           DatabaseMethods().getOutChatRoom(widget.chatRoomId);
                           Navigator.pop(context);

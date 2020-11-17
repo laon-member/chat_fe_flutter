@@ -77,7 +77,7 @@ class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.search_rounded),
             tooltip: "검색",
             padding: EdgeInsets.symmetric(horizontal: 20),
             onPressed: () {
@@ -95,14 +95,6 @@ class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
         child: this.friendsList(),
       ),
       resizeToAvoidBottomPadding: false,
-      // floatingActionButton: FloatingActionButton(
-      //   child: Icon(Icons.chat_rounded),
-      //   tooltip: '채팅 목록',
-      //   onPressed: () {
-      //     Navigator.pushReplacement(
-      //         context, MaterialPageRoute(builder: (context) => ChatRoom()));
-      //   },
-      // ),
     );
   }
 }

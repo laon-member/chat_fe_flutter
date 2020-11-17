@@ -66,7 +66,7 @@ class _ChatRoomState extends State<ChatRoom> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app_outlined),
+            icon: Icon(Icons.exit_to_app_rounded),
             tooltip: "로그아웃",
             onPressed: () {
               showDialog(
@@ -85,6 +85,8 @@ class _ChatRoomState extends State<ChatRoom> {
                       ),
                       new FlatButton(
                         child: new Text("여기를 길게 눌러 로그아웃"),
+                        // ignore: unnecessary_statements
+                        onPressed:(){null;},
                         onLongPress: () {Navigator.pop(context);
                         authService.signOut();
                         Navigator.pushReplacement(context,
@@ -98,7 +100,7 @@ class _ChatRoomState extends State<ChatRoom> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.search),
+            icon: Icon(Icons.search_rounded),
             tooltip: "검색",
             padding: EdgeInsets.symmetric(horizontal: 20),
             onPressed: () {
