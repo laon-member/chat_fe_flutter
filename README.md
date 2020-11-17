@@ -1,19 +1,13 @@
 # chat_app
 
-That is chat app.
+이 앱은 채팅 앱 입니다.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
-### 20201117
-버튼 아이콘 일부 수정
+## 날짜별 달라진 점
+### 2020년 11월
+#### 16일
+채팅방
+#### 17일 오전
+일부 아이콘 및 엑션 변경
+#### 17일 오후
+각 dependencies 의 버전을 업그레이드해 성능 향상 및 안정화
+파일 업로드 기능 구현을 위한 파일 선택기능 삽입
