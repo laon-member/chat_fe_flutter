@@ -17,3 +17,5 @@ samples, guidance on mobile development, and a full API reference.
 
 ### 20201117
 버튼 아이콘 일부 수정
+### 20201118
+앱 아이콘 변경, 파일 업로드 기능 구현을 위한 클라우드에 업로드 기능 구현 확인, 하드코딩 소프트코딩으로 전환작업중
