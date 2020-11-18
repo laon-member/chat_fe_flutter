@@ -35,13 +35,13 @@ class _FriendsScreenState extends State<FriendsScreen> {
       builder: (context, snapshot) {
         return snapshot.hasData
             ? ListView.builder(
-                itemCount: snapshot.data.documents.length,
+                itemCount: snapshot.data.docs.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return FriendsTile(
-                      snapshot.data.documents[index].data['friendName']
+                      snapshot.data.docs[index].data()['friendName']
                           .toString(),
-                      snapshot.data.documents[index].data['friendId']);
+                      snapshot.data.docs[index].data()['friendId']);
                 })
             : Container();
       },

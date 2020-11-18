@@ -147,7 +147,9 @@ class DatabaseMethods {
     });
   }
 
-  ///채팅방에서 대화 올림
+  ///채팅방에서 텍스트형식의 대화를 만듭니다.
+  ///일일이 Map 값을 입력해야해 불편함이 예상되어 다른 것으로의 사용을 강력히 권장합니다.
+  @Deprecated("대화 관련된 메서드는 ChatMethods대화 내용 추가는 addText(), 파일 추가는 addFile(), 새로운 정보 추가는 addInfo()를 사용하세요.")
   addConversationMessages(String chatRoomId, messageMap) {
     FirebaseFirestore.instance
         .collection("ChatRoom")
@@ -157,6 +159,10 @@ class DatabaseMethods {
         .catchError((e) {
       print(e.toString());
     });
+  }
+
+  addChat(String chatRoomId, String chatText) {
+
   }
 
   addConversationMessagesAsFile(String chatRoomId, String fileName){
@@ -174,4 +180,5 @@ class DatabaseMethods {
   }
 
   void uploadFile() {}
+
 }

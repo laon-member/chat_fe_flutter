@@ -1,11 +1,14 @@
 //import 'dart:html';
+import 'dart:io';
 
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/friends_screen_check.dart';
-import 'package:chat_app/views/upload_file.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 ///conversation : 대화(nown)
 ///상대방과 대화할 수 있는 스크린 입니다.
@@ -47,7 +50,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                       snapshot.data.docs[index].data()["sendBy"] ==
                           Constants.myName,
                       snapshot.data.docs[index].data()["time"],
-                      snapshot.data.docs[index].data()["sendBy"]);
+                      snapshot.data.docs[index].data()["sendBy"],
+                      snapshot.data.docs[index].data()["type"]);
                 })
             : Container(
                 decoration: BoxDecoration(
@@ -253,8 +257,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             : null;
                       },
                       onLongPress: () {
-                        DatabaseMethods().uploadFile();
-
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -269,10 +271,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                 FlatButton(
                                   child: Text("업로드"),
                                   onPressed: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => UploadFile(widget.chatRoomId)));
+                                    Navigator.pop(context);
+                                    toupload();
                                   },
                                   // onLongPress: () {
                                   //   DatabaseMethods().getOutChatRoom(widget.chatRoomId);
@@ -310,7 +310,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
   }
 
-  Toupload() {}
+  void toupload() async {
+    FilePickerResult result =
+    await FilePicker.platform.pickFiles(allowMultiple: false);
+
+    if (result != null) {
+      File file = File(result.files.single.path);
+      try {
+        String fileRef = "gs://chatappsample-a6614.appspot.com/chat/${widget.chatRoomId}/${DateTime.now().millisecondsSinceEpoch}";
+        UploadTask uploadTask = FirebaseStorage.instance.refFromURL(fileRef).putFile(file);
+        uploadTask.then((TaskSnapshot snapshot) {
+          print("다운로드 URL!!: ${FirebaseStorage.instance.ref(fileRef).getDownloadURL()}");
+        }).catchError((Object e) {
+          print("업로드 중 에러 발생!!: $e");
+        });
+      } on FirebaseException catch (e) {
+        print("파이어베이스 오류!!: $e");
+      }
+    }
+  }
 }
 
 class MessageTile extends StatelessWidget {
@@ -318,8 +336,9 @@ class MessageTile extends StatelessWidget {
   final bool isSendByMe;
   final String time;
   final String sendBy;
+  final String type;
 
-  MessageTile(this.message, this.isSendByMe, this.time, this.sendBy);
+  MessageTile(this.message, this.isSendByMe, this.time, this.sendBy, this.type);
 
   @override
   Widget build(BuildContext context) {
