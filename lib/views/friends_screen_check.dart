@@ -1,6 +1,7 @@
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/services/auth.dart';
+import 'package:chat_app/services/chat_service.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/widgets/widget.dart';
@@ -136,7 +137,7 @@ class FriendsPlusTile extends StatelessWidget {
           Spacer(),
           GestureDetector(
             onTap: () {
-              DatabaseMethods().addMember(roomId, friendId, friendName, chatName);
+              ChatMethods().addMember(roomId, friendId, friendName, chatName);
             },
             child: Container(
               decoration: BoxDecoration(

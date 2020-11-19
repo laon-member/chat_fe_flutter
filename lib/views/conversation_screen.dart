@@ -2,13 +2,19 @@
 import 'dart:io';
 
 import 'package:chat_app/helper/constants.dart';
-import 'package:chat_app/services/database.dart';
+import 'package:chat_app/services/chat_service.dart';
+import 'package:dio/dio.dart';
+import 'package:path/path.dart' as path;
 import 'package:chat_app/views/friends_screen_check.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:downloads_path_provider_28/downloads_path_provider_28.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 ///conversation : 대화(nown)
 ///상대방과 대화할 수 있는 스크린 입니다.
@@ -24,7 +30,6 @@ class ConversationScreen extends StatefulWidget {
 }
 
 class _ConversationScreenState extends State<ConversationScreen> {
-  DatabaseMethods databaseMethods = new DatabaseMethods();
   TextEditingController messageController = new TextEditingController();
   ScrollController _scrollController = new ScrollController();
 
@@ -51,7 +56,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           Constants.myName,
                       snapshot.data.docs[index].data()["time"],
                       snapshot.data.docs[index].data()["sendBy"],
-                      snapshot.data.docs[index].data()["type"]);
+                      snapshot.data.docs[index].data()["type"],
+                      snapshot.data.docs[index].data()['Download_url']);
                 })
             : Container(
                 decoration: BoxDecoration(
@@ -63,16 +69,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   sendMessage() {
-    Map<String, dynamic> messageMap = {
-      "message": messageController.text,
-      "sendBy": Constants.myName,
-      "UNIXtime": DateTime.now().millisecondsSinceEpoch,
-      "date":
-          "${DateTime.now().year.toString()}년 ${DateTime.now().month.toString()}월 ${DateTime.now().day.toString()}일",
-      "time":
-          "${DateTime.now().hour.toString()}:${DateTime.now().minute < 10 ? "0" + DateTime.now().minute.toString() : DateTime.now().minute.toString()}",
-    };
-    DatabaseMethods().addConversationMessages(widget.chatRoomId, messageMap);
+    ChatMethods().addText(widget.chatRoomId, messageController.text);
     _scrollController.animateTo(
       0.0,
       curve: Curves.easeOut,
@@ -83,7 +80,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
 
   @override
   void initState() {
-    databaseMethods.getConversationMessages(widget.chatRoomId).then((value) {
+    ChatMethods().getConvMsg(widget.chatRoomId).then((value) {
       setState(() {
         chatMessageStream = value;
       });
@@ -105,13 +102,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.edit_rounded),
-            tooltip: "채팅방 이름 바꾸기",
+            tooltip: "채팅방에 새로운 이름 주기",
             onPressed: () {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text("새로운 채팅방 이름"),
+                    title: Text("채팅방에 새로운 이름 주기"),
                     content: TextField(
                       controller: chatNameTextEditingController,
                       style: TextStyle(color: Colors.black),
@@ -137,9 +134,9 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text("채팅방 제목 새로운 이름으로 적용"),
+                                title: Text("채팅방에 새로운 이름 주기"),
                                 content: Text(
-                                  "채팅방 제목을 새로운 이름으로 변경할 경우 초대되어 있는 사용자 전체에게 이 제목이 적용됩니다.\n사용자간 갈등을 최대한 줄이기 위해 변경할 새로운 이름이 초대되어 있는 사용자 전체를 되도록 만족할 수 있도록 해주세요.\n제목변경으로 인한 책임은 모두 본인이 갖는다는 사실에 동의하는 것으로 간주됩니다.",
+                                  "채팅방 제목을 새로운 이름으로 변경할 경우 초대되어 있는 사용자 전체에게 이 제목이 적용되요.\n새로운 채팅방 이름을 지정할 때에는 초대되어있는 사용자 모두를 만족할 수 있는 제목으로 지정해주세요.\n채팅방에게 새로운 이름을 부여함으로써 일어난 인한 책임은 본인에게 귀속됩니다.",
                                   style: TextStyle(color: Colors.black),
                                 ),
                                 actions: [
@@ -154,7 +151,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                     child: Text("여기를 길게 눌러 확인"),
                                     onPressed: () {},
                                     onLongPress: () {
-                                      DatabaseMethods().changeChatRoom(
+                                      ChatMethods().changeRoomName(
                                           widget.chatRoomId,
                                           chatNameTextEditingController.text);
                                       Navigator.pop(context);
@@ -183,7 +180,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   return AlertDialog(
                     title: Text("채팅방 나가기"),
                     content: Text(
-                      "채팅방을 나가시겠어요?\n다른 멤버가 다시 초대할 때 까지 채팅에 참여하실 수 없으며 일부 버전의 경우 로그아웃이 진행될 수 있습니다.",
+                      "채팅방을 나가시겠어요?\n다른 멤버가 다시 초대할 때 까지 채팅에 참여하실 수 없으며 일부 버전에서는 로그아웃이 진행될 수 있어요.",
                       style: TextStyle(color: Colors.black),
                     ),
                     actions: [
@@ -195,7 +192,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         child: Text("여기를 길게 눌러 나가기"),
                         onPressed: () {},
                         onLongPress: () {
-                          DatabaseMethods().getOutChatRoom(widget.chatRoomId);
+                          ChatMethods().getOutChatRoom(widget.chatRoomId);
                           Navigator.pop(context);
                           Navigator.pop(context);
                         },
@@ -261,24 +258,26 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text("파일 업로드"),
-                              content: Text("파일을 업로드하시겠어요?"),
+                              title: Text("파일/이미지 공유"),
+                              content: Text("파일 또는 이미지를 공유할까요?"),
                               actions: [
                                 FlatButton(
                                   child: Text("취소"),
                                   onPressed: () => Navigator.pop(context),
                                 ),
                                 FlatButton(
-                                  child: Text("업로드"),
+                                  child: Text("파일 공유"),
                                   onPressed: () {
                                     Navigator.pop(context);
                                     toupload();
                                   },
-                                  // onLongPress: () {
-                                  //   DatabaseMethods().getOutChatRoom(widget.chatRoomId);
-                                  //   Navigator.pop(context);
-                                  //   Navigator.pop(context);
-                                  // },
+                                ),
+                                FlatButton(
+                                  child: Text("이미지 공유"),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    touploadImage();
+                                  },
                                 ),
                               ],
                             );
@@ -311,16 +310,20 @@ class _ConversationScreenState extends State<ConversationScreen> {
   }
 
   void toupload() async {
-    FilePickerResult result =
-    await FilePicker.platform.pickFiles(allowMultiple: false);
-
+    FilePickerResult result = await FilePicker.platform
+        .pickFiles(allowMultiple: false, type: FileType.any);
     if (result != null) {
       File file = File(result.files.single.path);
       try {
-        String fileRef = "gs://chatappsample-a6614.appspot.com/chat/${widget.chatRoomId}/${DateTime.now().millisecondsSinceEpoch}";
-        UploadTask uploadTask = FirebaseStorage.instance.refFromURL(fileRef).putFile(file);
+        String fileRef =
+            "gs://chatappsample-a6614.appspot.com/chat/${widget.chatRoomId}/${DateTime.now().millisecondsSinceEpoch}";
+        UploadTask uploadTask =
+            FirebaseStorage.instance.refFromURL(fileRef).putFile(file);
         uploadTask.then((TaskSnapshot snapshot) {
-          print("다운로드 URL!!: ${FirebaseStorage.instance.ref(fileRef).getDownloadURL()}");
+          print(
+              "다운로드 URL!!: ${FirebaseStorage.instance.ref(fileRef).getDownloadURL()}");
+          ChatMethods().addFile(widget.chatRoomId, result.files.single.name,
+              "${FirebaseStorage.instance.ref(fileRef).getDownloadURL().toString()}");
         }).catchError((Object e) {
           print("업로드 중 에러 발생!!: $e");
         });
@@ -329,95 +332,285 @@ class _ConversationScreenState extends State<ConversationScreen> {
       }
     }
   }
+
+  void touploadImage() async {
+    final PickedFile pickedFile =
+        await ImagePicker().getImage(source: ImageSource.gallery);
+    final File file = await File(pickedFile.path);
+    if (pickedFile != null) {
+      try {
+        String fileRef =
+            "gs://chatappsample-a6614.appspot.com/chat/${widget.chatRoomId}/${DateTime.now().millisecondsSinceEpoch}";
+        UploadTask uploadTask =
+            FirebaseStorage.instance.refFromURL(fileRef).putFile(file);
+        uploadTask.then((TaskSnapshot snapshot) {
+          print(
+              "다운로드 URL!!: ${FirebaseStorage.instance.ref(fileRef).getDownloadURL()}");
+          ChatMethods().addImage(widget.chatRoomId, "${pickedFile.path}",
+              "${FirebaseStorage.instance.ref(fileRef).getDownloadURL()}");
+        }).catchError((Object e) {
+          print("업로드 중 에러 발생!!: $e");
+        });
+      } on FirebaseException catch (e) {
+        print("파이어베이스 오류!!: $e");
+      }
+    } else {
+      print("에러!!: 거부됨(용량초과 혹은 선택된 파일이 빈 값임)");
+    }
+  }
 }
 
+/// type 에 관련된 정보
+/// info: 정보, text: 단문 텍스트, file: 파일, image: 이미지파일
 class MessageTile extends StatelessWidget {
   final String message;
   final bool isSendByMe;
   final String time;
   final String sendBy;
   final String type;
+  final String download_Url;
 
-  MessageTile(this.message, this.isSendByMe, this.time, this.sendBy, this.type);
+  MessageTile(this.message, this.isSendByMe, this.time, this.sendBy, this.type,
+      this.download_Url);
+
+  Future<void> download(String fileName, String fileUrl) async {
+    final dir = await _getDownloadDirectory();
+    final isPermissionStatusGranted = await _requestPermissions();
+
+    if (isPermissionStatusGranted) {
+      final savePath = path.join(dir.path, fileName);
+      await _startDownload(savePath, fileUrl);
+    } else {
+      // handle the scenario when user declines the permissions
+    }
+  }
+
+  final Dio _dio = Dio();
+
+  Future<void> _startDownload(String savePath, String fileUrl) async {
+    final response = await _dio.download(fileUrl, savePath);
+  }
+
+  Future<Directory> _getDownloadDirectory() async {
+    if (Platform.isAndroid) {
+      return await DownloadsPathProvider.downloadsDirectory;
+    }
+
+    // in this example we are using only Android and iOS so I can assume
+    // that you are not trying it for other platforms and the if statement
+    // for iOS is unnecessary
+
+    // iOS directory visible to user
+    return await getApplicationDocumentsDirectory();
+  }
+
+  Future<bool> _requestPermissions() async {
+    var permission = await Permission.storage.request();
+    if (permission != PermissionStatus.granted) {
+      await Permission.storage.request();
+    }
+    return permission == PermissionStatus.granted;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(
-          top: 3,
-          bottom: 3,
-          left: isSendByMe ? 0 : 20,
-          right: isSendByMe ? 20 : 0),
-      alignment: isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment:
-            isSendByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          isSendByMe
-              ? Row()
-              : Row(
-                  children: [
-                    Container(
-                      height: 30,
-                      width: 30,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(40)),
-                      child: Text(
-                        "${sendBy.substring(0, 1).toUpperCase()}",
-                        style: mediumTextStyle(),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Container(
-                      child: Text(
-                        sendBy,
-                        style: TextStyle(color: Colors.white, fontSize: 15),
-                      ),
-                    ),
-                  ],
+    switch (type) {
+      case "info":
+        return Container(
+          padding: EdgeInsets.only(top: 3, bottom: 3, left: 20, right: 20),
+          alignment: Alignment.center,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                margin: EdgeInsets.only(left: 20, right: 20, bottom: 5),
+                padding:
+                    EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Color(0x3AFFFFFF),
                 ),
-          isSendByMe ? Container() : SizedBox(height: 3),
-          Container(
-            margin: isSendByMe
-                ? EdgeInsets.only(left: 20)
-                : EdgeInsets.only(right: 20),
-            padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-            decoration: BoxDecoration(
-              borderRadius: isSendByMe
-                  ? BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(2))
-                  : BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                      bottomLeft: Radius.circular(2),
-                      bottomRight: Radius.circular(20)),
-              color: isSendByMe ? Color(0xff007EF4) : Color(0x1AFFFFFF),
-            ),
-            child: Text(message,
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontFamily: 'OverpassRegular',
-                    fontWeight: FontWeight.w300)),
+                child: Text(message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontFamily: 'OverpassRegular',
+                        fontWeight: FontWeight.w300)),
+              ),
+            ],
           ),
-          Container(
-            margin: isSendByMe
-                ? EdgeInsets.only(left: 20)
-                : EdgeInsets.only(right: 20),
-            child: Text(time,
-                textAlign: isSendByMe ? TextAlign.right : TextAlign.left,
-                style: TextStyle(color: Colors.white30)),
-          )
-        ],
-      ),
-    );
+        );
+        break;
+      case "file":
+        return GestureDetector(
+          onTap: () {download(this.message, this.download_Url);},
+          child: Container(
+            padding: EdgeInsets.only(
+                top: 3,
+                bottom: 3,
+                left: isSendByMe ? 0 : 20,
+                right: isSendByMe ? 20 : 0),
+            alignment:
+                isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: Column(
+              crossAxisAlignment: isSendByMe
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                isSendByMe
+                    ? Row()
+                    : Row(
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 30,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(40)),
+                            child: Text(
+                              "${sendBy.substring(0, 1).toUpperCase()}",
+                              style: mediumTextStyle(),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Container(
+                            child: Text(
+                              sendBy,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                          ),
+                        ],
+                      ),
+                isSendByMe ? Container() : SizedBox(height: 3),
+                Container(
+                  margin: isSendByMe
+                      ? EdgeInsets.only(left: 20)
+                      : EdgeInsets.only(right: 20),
+                  padding:
+                      EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 20),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: isSendByMe ? Color(0xff007EF4) : Color(0x1AFFFFFF),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: isSendByMe
+                        ? MainAxisAlignment.end
+                        : MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.insert_drive_file_rounded, color: Colors.white,),
+                        iconSize: 25,
+                        padding: EdgeInsets.all(0),
+                      ),
+                      Text(message,
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontFamily: 'OverpassRegular',
+                              fontWeight: FontWeight.w300)),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: isSendByMe
+                      ? EdgeInsets.only(left: 20)
+                      : EdgeInsets.only(right: 20),
+                  child: Text(time,
+                      textAlign: isSendByMe ? TextAlign.right : TextAlign.left,
+                      style: TextStyle(color: Colors.white30)),
+                )
+              ],
+            ),
+          ),
+        );
+        break;
+      default:
+        return Container(
+          padding: EdgeInsets.only(
+              top: 3,
+              bottom: 3,
+              left: isSendByMe ? 0 : 20,
+              right: isSendByMe ? 20 : 0),
+          alignment: isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
+          child: Column(
+            crossAxisAlignment:
+                isSendByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              isSendByMe
+                  ? Row()
+                  : Row(
+                      children: [
+                        Container(
+                          height: 30,
+                          width: 30,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(40)),
+                          child: Text(
+                            "${sendBy.substring(0, 1).toUpperCase()}",
+                            style: mediumTextStyle(),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Container(
+                          child: Text(
+                            sendBy,
+                            style: TextStyle(color: Colors.white, fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+              isSendByMe ? Container() : SizedBox(height: 3),
+              Container(
+                margin: isSendByMe
+                    ? EdgeInsets.only(left: 20)
+                    : EdgeInsets.only(right: 20),
+                padding:
+                    EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                decoration: BoxDecoration(
+                  borderRadius: isSendByMe
+                      ? BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(2))
+                      : BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                          bottomLeft: Radius.circular(2),
+                          bottomRight: Radius.circular(20)),
+                  color: isSendByMe ? Color(0xff007EF4) : Color(0x1AFFFFFF),
+                ),
+                child: Text(message,
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: 'OverpassRegular',
+                        fontWeight: FontWeight.w300)),
+              ),
+              Container(
+                margin: isSendByMe
+                    ? EdgeInsets.only(left: 20)
+                    : EdgeInsets.only(right: 20),
+                child: Text(time,
+                    textAlign: isSendByMe ? TextAlign.right : TextAlign.left,
+                    style: TextStyle(color: Colors.white30)),
+              )
+            ],
+          ),
+        );
+        break;
+    }
   }
 }
