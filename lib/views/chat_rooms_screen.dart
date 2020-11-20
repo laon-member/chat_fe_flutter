@@ -119,7 +119,7 @@ class _ChatRoomState extends State<ChatRoom> {
       ),
       resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.person_outline_rounded),
+        child: Icon(Icons.person_rounded),
         tooltip: '친구',
         onPressed: () {
           Navigator.pushReplacement(
