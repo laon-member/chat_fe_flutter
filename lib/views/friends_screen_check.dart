@@ -5,6 +5,8 @@ import 'package:chat_app/services/chat_service.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FriendsCheckScreen extends StatefulWidget {
@@ -71,14 +73,14 @@ class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.check_rounded),
+            icon: Icon(CupertinoIcons.check_mark),
             tooltip: "확인",
             onPressed: () {
               Navigator.pop(context);
             },
           ),
           IconButton(
-            icon: Icon(Icons.search_rounded),
+            icon: Icon(CupertinoIcons.search),
             tooltip: "검색",
             padding: EdgeInsets.symmetric(horizontal: 20),
             onPressed: () {
@@ -107,6 +109,7 @@ class FriendsPlusTile extends StatelessWidget {
   final String chatName;
 
   FriendsPlusTile(this.friendName, this.friendId, this.roomId, this.chatName);
+
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +140,7 @@ class FriendsPlusTile extends StatelessWidget {
           Spacer(),
           GestureDetector(
             onTap: () {
+              ChatMethods().delOneChatRoom(roomId, friendId);
               ChatMethods().addMember(roomId, friendId, friendName, chatName);
             },
             child: Container(
@@ -144,7 +148,7 @@ class FriendsPlusTile extends StatelessWidget {
                   color: Colors.blue, borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Icon(
-                Icons.person_add_rounded,
+                CupertinoIcons.person_badge_plus,
                 color: Colors.white,
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/widgets/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Search extends StatefulWidget {
@@ -57,29 +58,9 @@ class _SearchState extends State<Search> {
         : Container();
   }
 
-  /// 채팅방을 만들며 대화를 시작합니다. 그러나 본인에게는 메시지를 전송할 수 없습니다.
-// createChatroomAndStartConversation({String userId, String myName, String userName}) {
-//   if (userId != Constants.myId) {
-//     String chatRoomId = getRandomString(20);
-//     List<String> users = [userId, Constants.myId.toString()];
-//     Map<String, dynamic> charRoomMap = {
-//       "users": users,
-//       "chatroomId": chatRoomId
-//       "chatName" = "$myName, $userName",
-//     };
-//     databaseMethods.CreateChatRoom(chatRoomId, charRoomMap);
-//     Navigator.push(
-//         context,
-//         MaterialPageRoute(
-//             builder: (context) => ConversationScreen(chatRoomId)));
-//   } else {
-//     print("본인은 본인에게 메시지를 전송할 수 없어요.");
-//   }
-// }
-
-  addFriend({String userName, String userId}) {
-    Map<String, dynamic> friendMap = {"friendId": userId, "friendName": userName};
-    databaseMethods.addFriends(userId, friendMap);
+  addFriend({String userName, String userId, bool hasConvRoom, String oneChatRoomId}) {
+    Map<String, dynamic> friendMap = {"friendId": userId, "friendName": userName, "hasConvRoom": hasConvRoom, "oneChatRoomId": null};
+    databaseMethods.addFriends(userId, friendMap, hasConvRoom, oneChatRoomId);
   }
 
   Widget SearchTile(String userName, String userEmail, String userId) {
@@ -103,14 +84,14 @@ class _SearchState extends State<Search> {
           Spacer(),
           GestureDetector(
             onTap: () {
-              userId != Constants.myId ? addFriend(userName: userName, userId: userId) : null;
+              userId != Constants.myId ? addFriend(userName: userName, userId: userId, hasConvRoom: false) : null;
             },
             child: Container(
               decoration: BoxDecoration(
                   color: userId == Constants.myId ? Colors.black54 : Colors.blue, borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Icon(
-                userId == Constants.myId ? Icons.person_add_disabled : Icons.person_add_rounded,
+                userId == Constants.myId ? CupertinoIcons.person_crop_circle_badge_checkmark : CupertinoIcons.person_add,
                 color: Colors.white,
               ), //하얀색 메시지 아이콘
             ),
@@ -166,7 +147,7 @@ class _SearchState extends State<Search> {
                                   borderRadius: BorderRadius.circular(45)),
                               padding: EdgeInsets.all(10),
                               child: Icon(
-                                Icons.person_search_rounded,
+                                CupertinoIcons.search,
                                 color: Colors.black,
                                 size: 30,
                               )),

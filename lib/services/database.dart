@@ -45,21 +45,21 @@ class DatabaseMethods {
   getChatRooms(String userId) async {
     return await FirebaseFirestore.instance
         .collection("ChatRoom")
-        .where("users", arrayContains: userId)
+        .where("users", arrayContainsAny: [userId, "vIDGgZA920QQFW2uRQ8o"])
         .snapshots();
   }
 
   ///이미 둘이 참여한 방이 있는지 여부를 확인함.
   ///TODO: 명령어가 확실치 않으니 다시 한 번 확인할 것.
-  isAlreadyExistChatRooms(String userId) async {
+  isAlreadyExistChatRooms(String friendId) async {
     return await FirebaseFirestore.instance
         .collection("ChatRoom")
-        .where("users", arrayContains: "$userId&&${Constants.myId}")
+        .where("users", arrayContains: [friendId, Constants.myId])
         .snapshots();
   }
 
   ///친구추가
-  addFriends(String userId, friendMap) {
+  addFriends(String userId, friendMap, bool hasConvRoom, String oneChatRoomId) {
     FirebaseFirestore.instance
         .collection("users")
         .doc(Constants.myId)

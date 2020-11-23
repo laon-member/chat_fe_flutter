@@ -72,10 +72,10 @@ class StorageMethods {
 
     if (downloadToFile.existsSync()) {
       print('이미 다운로드됨!!:: ${downloadToFile.toString()}');
-      OpenFile.open(downloadToFile.toString()).catchError((e) {
+      OpenFile.open(downloadToFile.path.toString()).catchError((e) {
         print("파일 읽기 에러!!: $e");
       });
-      downloadToFile.openRead();
+      await downloadToFile.open(mode: FileMode.read);
     } else {
       try {
         await FirebaseStorage.instance

@@ -1,8 +1,10 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/chat_service.dart';
 import 'package:chat_app/services/storage_methods.dart';
 import 'package:chat_app/views/friends_screen_check.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 ///conversation : 대화(nown)
@@ -25,7 +27,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Stream chatMessageStream;
 
   TextEditingController chatNameTextEditingController =
-  new TextEditingController();
+      new TextEditingController();
+
+  AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+
 
   // ignore: non_constant_identifier_names
   Widget ChatMessageList() {
@@ -34,36 +39,37 @@ class _ConversationScreenState extends State<ConversationScreen> {
       builder: (context, snapshot) {
         return snapshot.hasData
             ? ListView.builder(
-            reverse: true,
-            controller: _scrollController,
-            shrinkWrap: true,
-            itemCount: snapshot.data.docs.length,
-            itemBuilder: (context, index) {
-              return MessageTile(
-                  snapshot.data.docs[index].data()["message"],
-                  snapshot.data.docs[index].data()["sendBy"] ==
-                      Constants.myName,
-                  snapshot.data.docs[index].data()["time"],
-                  snapshot.data.docs[index].data()["sendBy"],
-                  snapshot.data.docs[index].data()["type"],
-                  snapshot.data.docs[index].data()['Download_url'],
-                  widget.chatRoomId);
-            })
+                reverse: true,
+                controller: _scrollController,
+                shrinkWrap: true,
+                itemCount: snapshot.data.docs.length,
+                itemBuilder: (context, index) {
+                  return MessageTile(
+                      snapshot.data.docs[index].data()["message"],
+                      snapshot.data.docs[index].data()["sendBy"] ==
+                          Constants.myName,
+                      snapshot.data.docs[index].data()["time"],
+                      snapshot.data.docs[index].data()["sendBy"],
+                      snapshot.data.docs[index].data()["type"],
+                      snapshot.data.docs[index].data()['Download_url'],
+                      widget.chatRoomId);
+                })
             : Container(
-            decoration: BoxDecoration(
-              color: Color(0x99FFFFFF),
-              borderRadius: BorderRadius.circular(15),
-            ));
+                decoration: BoxDecoration(
+                color: Color(0x99FFFFFF),
+                borderRadius: BorderRadius.circular(15),
+              ));
       },
     );
   }
 
   sendMessage() {
-    ChatMethods().addText(widget.chatRoomId, messageController.text);
+    ChatMethods().addText(
+        widget.chatRoomId, messageController.text.trimLeft().trimRight());
     _scrollController.animateTo(
       0.0,
       curve: Curves.easeOut,
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 500),
     );
     messageController.clear();
   }
@@ -91,7 +97,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.edit_rounded),
+            icon: Icon(CupertinoIcons.pencil),
             tooltip: "채팅방에 새로운 이름 주기",
             onPressed: () {
               showDialog(
@@ -161,7 +167,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.exit_to_app_rounded),
+            icon: Icon(CupertinoIcons.escape),
             tooltip: "채팅방 나가기",
             onPressed: () {
               showDialog(
@@ -194,15 +200,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.add_rounded),
+            icon: Icon(CupertinoIcons.plus),
             tooltip: "초대",
             onPressed: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) =>
-                          FriendsCheckScreen(
-                              widget.chatRoomId, widget.chatName)));
+                      builder: (context) => FriendsCheckScreen(
+                          widget.chatRoomId, widget.chatName)));
             },
           ),
         ],
@@ -211,11 +216,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
         child: Stack(
           children: [
             Container(
-              height: MediaQuery
-                  .of(context)
-                  .size
-                  .height,
-              margin: const EdgeInsets.only(bottom: 80),
+              height: MediaQuery.of(context).size.height,
+              margin: const EdgeInsets.only(bottom: 65),
               decoration: BoxDecoration(
                 color: Color(0xff1F1F1F),
                 borderRadius: BorderRadius.circular(15),
@@ -229,25 +231,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   color: Color(0x99FFFFFF),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                 child: Row(
                   children: [
-                    Expanded(
-                        child: TextField(
-                          controller: messageController,
-                          style: TextStyle(color: Colors.black),
-                          decoration: InputDecoration(
-                              hintText: "짧게 누르면 전송, 길게 누르면 파일첨부",
-                              hintStyle: TextStyle(color: Colors.black54),
-                              border: InputBorder.none),
-                        )),
                     GestureDetector(
                       onTap: () {
-                        messageController.text.isNotEmpty
-                            ? sendMessage()
-                            : null;
-                      },
-                      onLongPress: () {
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
@@ -263,16 +251,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                   child: Text("파일 공유"),
                                   onPressed: () {
                                     Navigator.pop(context);
-                                    StorageMethods().toUploadFile(
-                                        widget.chatRoomId);
+                                    StorageMethods()
+                                        .toUploadFile(widget.chatRoomId);
                                   },
                                 ),
                                 FlatButton(
                                   child: Text("이미지 공유"),
                                   onPressed: () {
                                     Navigator.pop(context);
-                                    StorageMethods().toUploadImage(
-                                        widget.chatRoomId);
+                                    StorageMethods()
+                                        .toUploadImage(widget.chatRoomId);
                                   },
                                 ),
                               ],
@@ -281,17 +269,47 @@ class _ConversationScreenState extends State<ConversationScreen> {
                         );
                       },
                       child: Container(
-                        height: 50,
-                        width: 50,
+                        height: 35,
+                        width: 35,
+                        padding: EdgeInsets.all(1),
+                        margin: EdgeInsets.only(right: 5),
+                        child: Icon(
+                          CupertinoIcons.plus_app,
+                          color: Colors.black26,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                        child: TextField(
+                      controller: messageController,
+                      maxLines: null,
+                      keyboardType: TextInputType.multiline,
+                      style: TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        hintText: "텍스트 입력",
+                        hintStyle: TextStyle(color: Colors.black54),
+                        border: InputBorder.none,
+                      ),
+                    )),
+                    GestureDetector(
+                      onTap: () {
+                        messageController.text.trimLeft().trimRight() != ""
+                            ? sendMessage()
+                            : null;
+                      },
+                      child: Container(
+                        height: 40,
+                        width: 40,
                         decoration: BoxDecoration(
                           color: Colors.blue,
                           borderRadius: BorderRadius.circular(50),
                         ),
-                        padding: EdgeInsets.all(10),
+                        padding: EdgeInsets.all(5),
                         child: Icon(
-                          Icons.add_comment_rounded,
+                          CupertinoIcons.paperplane_fill,
                           color: Colors.white,
-                          size: 25,
+                          size: 20,
                         ),
                       ),
                     )
@@ -304,8 +322,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
       ),
     );
   }
-
-
 }
 
 /// type 에 관련된 정보
@@ -322,7 +338,6 @@ class MessageTile extends StatelessWidget {
   MessageTile(this.message, this.isSendByMe, this.time, this.sendBy, this.type,
       this.download_Url, this.chatRoomId);
 
-
   @override
   Widget build(BuildContext context) {
     switch (type) {
@@ -336,7 +351,7 @@ class MessageTile extends StatelessWidget {
               Container(
                 margin: EdgeInsets.only(left: 20, right: 20, bottom: 5),
                 padding:
-                EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                    EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   color: Color(0x3AFFFFFF),
@@ -356,8 +371,8 @@ class MessageTile extends StatelessWidget {
       case "file":
         return GestureDetector(
           onTap: () {
-            StorageMethods().toDownloadFile(
-                this.message, this.download_Url, chatRoomId);
+            StorageMethods()
+                .toDownloadFile(this.message, this.download_Url, chatRoomId);
           },
           child: Container(
             padding: EdgeInsets.only(
@@ -366,7 +381,7 @@ class MessageTile extends StatelessWidget {
                 left: isSendByMe ? 0 : 20,
                 right: isSendByMe ? 20 : 0),
             alignment:
-            isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
+                isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
             child: Column(
               crossAxisAlignment: isSendByMe
                   ? CrossAxisAlignment.end
@@ -375,38 +390,38 @@ class MessageTile extends StatelessWidget {
                 isSendByMe
                     ? Row()
                     : Row(
-                  children: [
-                    Container(
-                      height: 30,
-                      width: 30,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: Colors.blue,
-                          borderRadius: BorderRadius.circular(40)),
-                      child: Text(
-                        "${sendBy.substring(0, 1).toUpperCase()}",
-                        style: mediumTextStyle(),
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 30,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(40)),
+                            child: Text(
+                              "${sendBy.substring(0, 1).toUpperCase()}",
+                              style: mediumTextStyle(),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Container(
+                            child: Text(
+                              sendBy,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    SizedBox(
-                      width: 8,
-                    ),
-                    Container(
-                      child: Text(
-                        sendBy,
-                        style:
-                        TextStyle(color: Colors.white, fontSize: 15),
-                      ),
-                    ),
-                  ],
-                ),
                 isSendByMe ? Container() : SizedBox(height: 3),
                 Container(
                   margin: isSendByMe
                       ? EdgeInsets.only(left: 20)
                       : EdgeInsets.only(right: 20),
                   padding:
-                  EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 20),
+                      EdgeInsets.only(top: 10, bottom: 10, left: 10, right: 20),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     color: isSendByMe ? Color(0xff007EF4) : Color(0x1AFFFFFF),
@@ -418,8 +433,10 @@ class MessageTile extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.insert_drive_file_rounded,
-                          color: Colors.white,),
+                        icon: Icon(
+                          Icons.insert_drive_file_rounded,
+                          color: Colors.white,
+                        ),
                         iconSize: 25,
                         padding: EdgeInsets.all(0),
                       ),
@@ -456,54 +473,54 @@ class MessageTile extends StatelessWidget {
           alignment: isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
           child: Column(
             crossAxisAlignment:
-            isSendByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                isSendByMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             children: [
               isSendByMe
                   ? Row()
                   : Row(
-                children: [
-                  Container(
-                    height: 30,
-                    width: 30,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        color: Colors.blue,
-                        borderRadius: BorderRadius.circular(40)),
-                    child: Text(
-                      "${sendBy.substring(0, 1).toUpperCase()}",
-                      style: mediumTextStyle(),
+                      children: [
+                        Container(
+                          height: 30,
+                          width: 30,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(40)),
+                          child: Text(
+                            "${sendBy.substring(0, 1).toUpperCase()}",
+                            style: mediumTextStyle(),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 8,
+                        ),
+                        Container(
+                          child: Text(
+                            sendBy,
+                            style: TextStyle(color: Colors.white, fontSize: 15),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  SizedBox(
-                    width: 8,
-                  ),
-                  Container(
-                    child: Text(
-                      sendBy,
-                      style: TextStyle(color: Colors.white, fontSize: 15),
-                    ),
-                  ),
-                ],
-              ),
               isSendByMe ? Container() : SizedBox(height: 3),
               Container(
                 margin: isSendByMe
                     ? EdgeInsets.only(left: 20)
                     : EdgeInsets.only(right: 20),
                 padding:
-                EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+                    EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
                 decoration: BoxDecoration(
                   borderRadius: isSendByMe
                       ? BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                      bottomLeft: Radius.circular(20),
-                      bottomRight: Radius.circular(2))
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                          bottomLeft: Radius.circular(20),
+                          bottomRight: Radius.circular(2))
                       : BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                      bottomLeft: Radius.circular(2),
-                      bottomRight: Radius.circular(20)),
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                          bottomLeft: Radius.circular(2),
+                          bottomRight: Radius.circular(20)),
                   color: isSendByMe ? Color(0xff007EF4) : Color(0x1AFFFFFF),
                 ),
                 child: Text(message,

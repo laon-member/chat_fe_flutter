@@ -1,12 +1,13 @@
 import 'package:chat_app/helper/constants.dart';
+import 'package:chat_app/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 ///대화방에서 사용되는 데이터베이스 관련 메서드들 입니다.
 ///
 /// type 에 관련된 정보
 /// info: 정보, text: 단문 텍스트, file: 파일, image: 이미지파일
 class ChatMethods {
-
   ///대화창에서 대화 내용 불러옵니다.
   getConvMsg(String chatRoomId) async {
     return await FirebaseFirestore.instance
@@ -25,12 +26,13 @@ class ChatMethods {
         .update({'chatName': newChatRoomName}).catchError((e) {
       print(e);
     });
-    addInfo(chatRoomId, "${Constants.myName} 님이 새 채팅방 이름을\n$newChatRoomName (으)로 바꿨습니다.");
+    addInfo(chatRoomId,
+        "${Constants.myName} 님이 새 채팅방 이름을\n$newChatRoomName (으)로 바꿨습니다.");
     addInfo(chatRoomId, "ⓘ구 버전은 채팅방을 재진입해야 적용됩니다.");
   }
 
   ///채팅방 만들기
-  Future<bool> createChatRoom(String chatRoomId, chatRoomMap) {
+  createChatRoom(String chatRoomId, chatRoomMap) {
     FirebaseFirestore.instance
         .collection("ChatRoom")
         .doc(chatRoomId)
@@ -41,14 +43,73 @@ class ChatMethods {
     addInfo(chatRoomId, "채팅방이 열렸습니다!");
   }
 
-  ///사용자 초대
-  addMember(String chatRoomId, String friendId, String friendName, String chatName) {
-    FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).update({
-      'users': FieldValue.arrayUnion([friendId])
-    }).catchError((e) {
-      print(e);
+  createOneChatRoom(String friendId, String chatRoomId) {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(Constants.myId)
+        .collection("friends")
+        .doc(friendId)
+        .update({"hasConvRoom": true, "oneChatRoomId": chatRoomId});
+
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(friendId)
+        .collection("friends")
+        .doc(Constants.myId)
+        .set({
+      "friendId": Constants.myId,
+      "friendName": Constants.myName,
+      "hasConvRoom": true,
+      "oneChatRoomId": chatRoomId
     });
-    addInfo(chatRoomId, "${Constants.myName} 님이 $friendName 님을 초대했습니다.\n$friendName 님! 피자는 가져오셨겠죠?");
+  }
+
+  delOneChatRoom(String chatRoomId, String newFriendsId) {
+    List<dynamic> inUsers;
+    String friendId = "";
+    FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).get().then((DocumentSnapshot documentSnapshot) {
+      inUsers = documentSnapshot.get("users");
+      inUsers.remove(Constants.myId.toString());
+    });
+    if(newFriendsId != inUsers.toString().replaceAll("[", "").replaceAll("]", "") && friendId != Constants.myId) {
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(Constants.myId)
+          .collection("friends")
+          .doc(friendId)
+          .update({"hasConvRoom": false, "oneChatRoomId": null});
+      FirebaseFirestore.instance
+          .collection("users")
+          .doc(friendId)
+          .collection("friends")
+          .doc(Constants.myId)
+          .update({"hasConvRoom": false, "oneChatRoomId": null});
+    }
+  }
+
+  ///사용자 초대
+  addMember(String chatRoomId, String newFriendId, String friendName,
+      String chatName) {
+    List<dynamic> inUsers;
+
+    ///내부에 있는 유저들의 정보를 얻어옴.
+    FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).get().then((DocumentSnapshot documentSnapshot) {
+      inUsers = documentSnapshot.get("users");
+      print("된다!!: $inUsers");
+
+      ///만약 초대하고자 하는 사람이 이미 있는 사람이라면
+      if(inUsers.contains(newFriendId)) {
+        print("이미 초대한 사용자는 다시 초대할 수 없어요");
+      } else {
+        FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).update({
+          'users': FieldValue.arrayUnion([newFriendId])
+        }).catchError((e) {
+          print(e);
+        });
+        addInfo(chatRoomId,
+            "${Constants.myName} 님이 $friendName 님을 초대했습니다.\n$friendName 님! 피자는 가져오셨겠죠?");
+      }
+    });
   }
 
   ///사용자 나감
@@ -78,10 +139,6 @@ class ChatMethods {
   addImage(String chatRoomId, String fileName, String DownloadUrl) {
     addConvMsg(fileName, "iamge", chatRoomId, Download_url: DownloadUrl);
   }
-
-  @Deprecated("`addConvMsg()`를 사용하셔야 합니다! 반드시!!")
-  addConversationMessages(String message, String type, String chatRoomId) =>
-      addConvMsg(message, type, chatRoomId);
 
   ///채팅방에서 대화를 만듭니다.
   addConvMsg(String message, String type, String chatRoomId,

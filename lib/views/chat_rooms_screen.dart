@@ -8,6 +8,7 @@ import 'package:chat_app/views/friends_screen.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoom extends StatefulWidget {
@@ -66,7 +67,7 @@ class _ChatRoomState extends State<ChatRoom> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: Icon(Icons.exit_to_app_rounded),
+            icon: Icon(CupertinoIcons.escape),
             tooltip: "로그아웃",
             onPressed: () {
               showDialog(
@@ -100,7 +101,7 @@ class _ChatRoomState extends State<ChatRoom> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.search_rounded),
+            icon: Icon(CupertinoIcons.search),
             tooltip: "검색",
             padding: EdgeInsets.symmetric(horizontal: 20),
             onPressed: () {
@@ -119,7 +120,7 @@ class _ChatRoomState extends State<ChatRoom> {
       ),
       resizeToAvoidBottomPadding: false,
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.person_rounded),
+        child: Icon(CupertinoIcons.person_2),
         tooltip: '친구',
         onPressed: () {
           Navigator.pushReplacement(
