@@ -9,7 +9,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(MyApp());
-  print("RUNNING... ${ThemeMode.system}");
+  print("IT'S RUNNING...\n애플리케이션의 작동을 시작합니다.");
 
   //SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
 }
@@ -75,7 +75,6 @@ class _MyAppState extends State<MyApp> {
       darkTheme: ThemeData(
         primaryColor: Color(0xff2F2F2F),
         scaffoldBackgroundColor: Color(0xff2F2F2F),
-        bottomAppBarColor: Color(0xff2F2F2F),
         accentColor: Color(0xff0076FF),
         fontFamily: "OverpassRegular",
         visualDensity: VisualDensity.adaptivePlatformDensity,

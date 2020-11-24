@@ -36,6 +36,7 @@ dependencies:
   file_picker: 2.0.13
   firebase_auth: ^0.18.3
   firebase_core: ^0.5.0
+  firebase_image: ^0.3.0
   firebase_storage: ^5.0.1
   flutter_launcher_icons: 0.8.1
   flutter_local_notifications: ^3.0.1+4

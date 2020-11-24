@@ -65,51 +65,7 @@ class _ChatRoomState extends State<ChatRoom> {
           "${Constants.myName.toString()}의 채팅 목록",
         ),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(CupertinoIcons.escape),
-            tooltip: "로그아웃",
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  // return object of type Dialog
-                  return AlertDialog(
-                    title: new Text("로그아웃"),
-                    content: new Text("로그아웃 하시겠어요?\n로그아웃 이후 재로그인이 필요합니다."),
-                    actions: <Widget>[
-                      new FlatButton(
-                        child: new Text("취소"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      new FlatButton(
-                        child: new Text("여기를 길게 눌러 로그아웃"),
-                        // ignore: unnecessary_statements
-                        onPressed:(){null;},
-                        onLongPress: () {Navigator.pop(context);
-                        authService.signOut();
-                        Navigator.pushReplacement(context,
-                            MaterialPageRoute(builder: (context) => Authenticate()));
-                        },
-                      )
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(CupertinoIcons.search),
-            tooltip: "검색",
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Search()));
-            },
-          )
-        ],
+        actions: [],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -119,13 +75,71 @@ class _ChatRoomState extends State<ChatRoom> {
         child: chatRoomsList(),
       ),
       resizeToAvoidBottomPadding: false,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        child: Icon(CupertinoIcons.person_2),
-        tooltip: '친구',
+        child: Icon(CupertinoIcons.search),
+        tooltip: "검색",
         onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => FriendsScreen()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Search()));
         },
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        notchMargin: 5.0,
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              tooltip: '친구 목록',
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              icon: Icon(CupertinoIcons.person_2),
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => FriendsScreen()));
+              },
+            ),
+            //로그아웃
+            IconButton(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              icon: Icon(CupertinoIcons.escape),
+              tooltip: "로그아웃",
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    // return object of type Dialog
+                    return AlertDialog(
+                      title: new Text("로그아웃"),
+                      content: new Text("로그아웃 하시겠어요?\n로그아웃 이후 재로그인이 필요합니다."),
+                      actions: <Widget>[
+                        new FlatButton(
+                          child: new Text("취소"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        new FlatButton(
+                          child: new Text("여기를 길게 눌러 로그아웃"),
+                          onPressed: () {},
+                          onLongPress: () {
+                            Navigator.pop(context);
+                            authService.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Authenticate()));
+                          },
+                        )
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

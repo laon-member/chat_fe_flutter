@@ -91,7 +91,7 @@ class _SearchState extends State<Search> {
                   color: userId == Constants.myId ? Colors.black54 : Colors.blue, borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Icon(
-                userId == Constants.myId ? CupertinoIcons.person_crop_circle_badge_checkmark : CupertinoIcons.person_add,
+                userId == Constants.myId ? Icons.person_add_disabled_outlined : Icons.person_add_outlined,
                 color: Colors.white,
               ), //하얀색 메시지 아이콘
             ),
@@ -162,7 +162,6 @@ class _SearchState extends State<Search> {
                     ),
                     child: searchList(),
                   )
-
                 ],
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:chat_app/services/chat_service.dart';
 import 'package:chat_app/services/storage_methods.dart';
 import 'package:chat_app/views/friends_screen_check.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:firebase_image/firebase_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -30,7 +31,6 @@ class _ConversationScreenState extends State<ConversationScreen> {
       new TextEditingController();
 
   AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
-
 
   // ignore: non_constant_identifier_names
   Widget ChatMessageList() {
@@ -434,20 +434,103 @@ class MessageTile extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: Icon(
-                          Icons.insert_drive_file_rounded,
+                          Icons.arrow_circle_down_outlined,
                           color: Colors.white,
                         ),
                         iconSize: 25,
                         padding: EdgeInsets.all(0),
                       ),
-                      Text(message,
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'OverpassRegular',
-                              fontWeight: FontWeight.w300)),
+                      Flexible(
+                        child: Text(message,
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'OverpassRegular',
+                                fontWeight: FontWeight.w300)),
+                      ),
                     ],
+                  ),
+                ),
+                Container(
+                  margin: isSendByMe
+                      ? EdgeInsets.only(left: 20)
+                      : EdgeInsets.only(right: 20),
+                  child: Text(time,
+                      textAlign: isSendByMe ? TextAlign.right : TextAlign.left,
+                      style: TextStyle(color: Colors.white30)),
+                )
+              ],
+            ),
+          ),
+        );
+        break;
+      case "image":
+        return GestureDetector(
+          onTap: () {
+            StorageMethods()
+                .toDownloadFile(this.message, this.download_Url, chatRoomId);
+          },
+          child: Container(
+            padding: EdgeInsets.only(
+                top: 3,
+                bottom: 3,
+                left: isSendByMe ? 0 : 20,
+                right: isSendByMe ? 20 : 0),
+            alignment:
+                isSendByMe ? Alignment.centerRight : Alignment.centerLeft,
+            child: Column(
+              crossAxisAlignment: isSendByMe
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              children: [
+                isSendByMe
+                    ? Row()
+                    : Row(
+                        children: [
+                          Container(
+                            height: 30,
+                            width: 30,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(40)),
+                            child: Text(
+                              "${sendBy.substring(0, 1).toUpperCase()}",
+                              style: mediumTextStyle(),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 8,
+                          ),
+                          Container(
+                            child: Text(
+                              sendBy,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 15),
+                            ),
+                          ),
+                        ],
+                      ),
+                isSendByMe ? Container() : SizedBox(height: 3),
+                Container(
+                  margin: isSendByMe
+                      ? EdgeInsets.only(left: 20)
+                      : EdgeInsets.only(right: 20),
+                  padding:
+                      EdgeInsets.only(top: 3, bottom: 3),
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),),
+                  child: Image(
+                    height: 150,
+                    width: 150,
+                    filterQuality: FilterQuality.low,
+                    fit: BoxFit.cover,
+                    image: FirebaseImage('gs://chatappsample-a6614.appspot.com/$download_Url',
+                        shouldCache: true,
+                        scale: 0.1,
+                        maxSizeBytes: 3000 * 3000,
+                        cacheRefreshStrategy: CacheRefreshStrategy.NEVER // Switch off update checking
+                        ),
                   ),
                 ),
                 Container(

@@ -38,7 +38,8 @@ class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
                           .toString(),
                       snapshot.data.docs[index].data()['friendId'],
                       widget.roomId.toString(),
-                    widget.chatName.toString()
+                    widget.chatName.toString(),
+                    snapshot.data.docs[index].data()['isOneVone'],
                   );
                 })
             : Container();
@@ -71,24 +72,7 @@ class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
           "${widget.chatName}(으)로 다른 사용자 초대",
         ),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(CupertinoIcons.check_mark),
-            tooltip: "확인",
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          IconButton(
-            icon: Icon(CupertinoIcons.search),
-            tooltip: "검색",
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Search()));
-            },
-          )
-        ],
+        actions: [],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -98,6 +82,40 @@ class _FriendsCheckScreenState extends State<FriendsCheckScreen> {
         child: this.friendsList(),
       ),
       resizeToAvoidBottomPadding: false,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: FloatingActionButton(
+        child: Icon(CupertinoIcons.check_mark),
+        tooltip: "확인",
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        notchMargin: 5.0,
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            IconButton(
+              tooltip: '취소',
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              icon: Icon(CupertinoIcons.xmark),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+            IconButton(
+              tooltip: '검색',
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              icon: Icon(CupertinoIcons.search),
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Search()));
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -107,8 +125,9 @@ class FriendsPlusTile extends StatelessWidget {
   final String friendId;
   final String roomId;
   final String chatName;
+  final bool isOneVone;
 
-  FriendsPlusTile(this.friendName, this.friendId, this.roomId, this.chatName);
+  FriendsPlusTile(this.friendName, this.friendId, this.roomId, this.chatName, this.isOneVone);
 
 
   @override
@@ -140,8 +159,7 @@ class FriendsPlusTile extends StatelessWidget {
           Spacer(),
           GestureDetector(
             onTap: () {
-              ChatMethods().delOneChatRoom(roomId, friendId);
-              ChatMethods().addMember(roomId, friendId, friendName, chatName);
+              ChatMethods().addMember(roomId, friendId, friendName, chatName, isOneVone);
             },
             child: Container(
               decoration: BoxDecoration(

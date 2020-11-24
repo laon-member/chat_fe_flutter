@@ -65,33 +65,22 @@ class ChatMethods {
   }
 
   delOneChatRoom(String chatRoomId, String newFriendsId) {
-    List<dynamic> inUsers;
-    String friendId = "";
-    FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).get().then((DocumentSnapshot documentSnapshot) {
-      inUsers = documentSnapshot.get("users");
-      inUsers.remove(Constants.myId.toString());
-    });
-    if(newFriendsId != inUsers.toString().replaceAll("[", "").replaceAll("]", "") && friendId != Constants.myId) {
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(Constants.myId)
-          .collection("friends")
-          .doc(friendId)
-          .update({"hasConvRoom": false, "oneChatRoomId": null});
-      FirebaseFirestore.instance
-          .collection("users")
-          .doc(friendId)
-          .collection("friends")
-          .doc(Constants.myId)
-          .update({"hasConvRoom": false, "oneChatRoomId": null});
-    }
+
   }
 
   ///사용자 초대
   addMember(String chatRoomId, String newFriendId, String friendName,
-      String chatName) {
+      String chatName, bool isOneVone) {
     List<dynamic> inUsers;
-
+    String oldFriendId = "";
+    FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).get().then((DocumentSnapshot documentSnapshot) {
+      inUsers = documentSnapshot.get("users");
+      inUsers.remove(Constants.myId.toString());
+    });
+    oldFriendId = inUsers.toString().trim().replaceAll("[", "").replaceAll("]", "");
+    if (isOneVone == null) {
+      isOneVone = true;
+    }
     ///내부에 있는 유저들의 정보를 얻어옴.
     FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).get().then((DocumentSnapshot documentSnapshot) {
       inUsers = documentSnapshot.get("users");
@@ -101,8 +90,28 @@ class ChatMethods {
       if(inUsers.contains(newFriendId)) {
         print("이미 초대한 사용자는 다시 초대할 수 없어요");
       } else {
+        if(isOneVone) {
+          if(newFriendId != oldFriendId && oldFriendId != Constants.myId) {
+            FirebaseFirestore.instance
+                .collection("users")
+                .doc(Constants.myId)
+                .collection("friends")
+                .doc(oldFriendId)
+                .update({"hasConvRoom": false, "oneChatRoomId": ""});
+            FirebaseFirestore.instance
+                .collection("users")
+                .doc(oldFriendId)
+                .collection("friends")
+                .doc(Constants.myId)
+                .update({"hasConvRoom": false, "oneChatRoomId": ""});
+
+            print("기존 친구: $oldFriendId\n1:1 방에서 단체방으로 전환됨");
+            isOneVone = false;
+          }
+        }
         FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).update({
-          'users': FieldValue.arrayUnion([newFriendId])
+          'users': FieldValue.arrayUnion([newFriendId]),
+          'isOneVone' : false
         }).catchError((e) {
           print(e);
         });
@@ -137,7 +146,7 @@ class ChatMethods {
 
   ///이미지 보냄
   addImage(String chatRoomId, String fileName, String DownloadUrl) {
-    addConvMsg(fileName, "iamge", chatRoomId, Download_url: DownloadUrl);
+    addConvMsg(fileName, "image", chatRoomId, Download_url: DownloadUrl);
   }
 
   ///채팅방에서 대화를 만듭니다.

@@ -24,13 +24,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
   DatabaseMethods databaseMethods = new DatabaseMethods();
   Stream friends;
 
-  static const _chars =
-      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
-  Random _rnd = Random();
-
-  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
-      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
-
   Widget friendsList() {
     return StreamBuilder(
       stream: friends,
@@ -76,53 +69,6 @@ class _FriendsScreenState extends State<FriendsScreen> {
           "${Constants.myName.toString()}의 친구 목록",
         ),
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: Icon(CupertinoIcons.escape),
-            tooltip: "로그아웃",
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  // return object of type Dialog
-                  return AlertDialog(
-                    title: new Text("로그아웃"),
-                    content: new Text("로그아웃 하시겠어요?\n로그아웃 이후 재로그인이 필요합니다."),
-                    actions: <Widget>[
-                      new FlatButton(
-                        child: new Text("취소"),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      new FlatButton(
-                        child: new Text("여기를 길게 눌러 로그아웃"),
-                        onPressed: () {},
-                        onLongPress: () {
-                          Navigator.pop(context);
-                          authService.signOut();
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Authenticate()));
-                        },
-                      )
-                    ],
-                  );
-                },
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(CupertinoIcons.search),
-            tooltip: "검색",
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Search()));
-            },
-          )
-        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -132,50 +78,73 @@ class _FriendsScreenState extends State<FriendsScreen> {
         child: friendsList(),
       ),
       resizeToAvoidBottomPadding: false,
+      floatingActionButtonLocation: FloatingActionButtonLocation.startDocked,
       floatingActionButton: FloatingActionButton(
-        child: Icon(CupertinoIcons.chat_bubble_text),
-        tooltip: '채팅 목록',
+        child: Icon(CupertinoIcons.search),
+        tooltip: "검색",
         onPressed: () {
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => ChatRoom()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => Search()));
         },
       ),
+      bottomNavigationBar: BottomAppBar(
+        shape: CircularNotchedRectangle(),
+        notchMargin: 5.0,
+        child: new Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            IconButton(
+              tooltip: '채팅 목록',
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              icon: Icon(CupertinoIcons.chat_bubble_text),
+              onPressed: () {
+                Navigator.pushReplacement(context,
+                    MaterialPageRoute(builder: (context) => ChatRoom()));
+              },
+            ),
+            //로그아웃
+            IconButton(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              icon: Icon(CupertinoIcons.escape),
+              tooltip: "로그아웃",
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    // return object of type Dialog
+                    return AlertDialog(
+                      title: new Text("로그아웃"),
+                      content: new Text("로그아웃 하시겠어요?\n로그아웃 이후 재로그인이 필요합니다."),
+                      actions: <Widget>[
+                        new FlatButton(
+                          child: new Text("취소"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        new FlatButton(
+                          child: new Text("여기를 길게 눌러 로그아웃"),
+                          onPressed: () {},
+                          onLongPress: () {
+                            Navigator.pop(context);
+                            authService.signOut();
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Authenticate()));
+                          },
+                        )
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
-  }
-
-  /// 채팅방을 만들며 대화를 시작합니다. 그러나 본인에게는 메시지를 전송할 수 없습니다.
-  createChatroomAndStartConversation(
-      {String userId,
-      String userName,
-      bool hasConvRoom,
-      String oneChatRoomId}) {
-    if (hasConvRoom == true) {
-
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ConversationScreen(userName, oneChatRoomId)));
-    } else {
-      if (userId != Constants.myId) {
-        String chatRoomId = getRandomString(20);
-        List<String> users = [userId, Constants.myId.toString()];
-        Map<String, dynamic> chatRoomMap = {
-          "users": users,
-          "chatroomId": chatRoomId,
-          "chatName": "${Constants.myName}, $userName",
-        };
-        ChatMethods().createChatRoom(chatRoomId, chatRoomMap);
-        ChatMethods().createOneChatRoom(userId, chatRoomId);
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    ConversationScreen(userName, chatRoomId)));
-      } else {
-        print("본인은 본인에게 메시지를 전송할 수 없어요.");
-      }
-    }
   }
 }
 
@@ -187,6 +156,13 @@ class FriendsTile extends StatelessWidget {
 
   FriendsTile(
       this.friendName, this.friendId, this.hasConvRoom, this.oneChatRoomId);
+
+  static const _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  Random _rnd = Random();
+
+  String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
+      length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
   @override
   Widget build(BuildContext context) {
@@ -223,14 +199,40 @@ class FriendsTile extends StatelessWidget {
             color: Colors.white,
             tooltip: "채팅방 만들기",
             onPressed: () {
-              _FriendsScreenState().createChatroomAndStartConversation(
-                  userId: friendId,
-                  userName: friendName,
-                  hasConvRoom: hasConvRoom);
+              listPushed(context);
             },
           )
         ],
       ),
     );
+  }
+
+  void listPushed(context) {
+    if (hasConvRoom == true) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  ConversationScreen(friendName, oneChatRoomId)));
+    } else {
+      if (friendId != Constants.myId) {
+        String chatRoomId = getRandomString(20);
+        List<String> users = [friendId, Constants.myId.toString()];
+        Map<String, dynamic> chatRoomMap = {
+          "users": users,
+          "chatroomId": chatRoomId,
+          "chatName": "${Constants.myName}, $friendName",
+        };
+        ChatMethods().createChatRoom(chatRoomId, chatRoomMap);
+        ChatMethods().createOneChatRoom(friendId, chatRoomId);
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    ConversationScreen(friendName, chatRoomId)));
+      } else {
+        print("본인은 본인에게 메시지를 전송할 수 없어요.");
+      }
+    }
   }
 }
