@@ -35,9 +35,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
                 itemBuilder: (context, index) {
                   return FriendsTile(
                       snapshot.data.docs[index].data()['friendName'].toString(),
-                      snapshot.data.docs[index].data()['friendId'],
-                      snapshot.data.docs[index].data()['hasConvRoom'],
-                      snapshot.data.docs[index].data()['oneChatRoomId']);
+                      snapshot.data.docs[index].data()['friendId'],);
                 })
             : Container();
       },
@@ -151,11 +149,9 @@ class _FriendsScreenState extends State<FriendsScreen> {
 class FriendsTile extends StatelessWidget {
   final String friendName;
   final String friendId;
-  final bool hasConvRoom;
-  final String oneChatRoomId;
 
   FriendsTile(
-      this.friendName, this.friendId, this.hasConvRoom, this.oneChatRoomId);
+      this.friendName, this.friendId);
 
   static const _chars =
       'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
@@ -166,7 +162,6 @@ class FriendsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(hasConvRoom);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: Row(
@@ -193,11 +188,9 @@ class FriendsTile extends StatelessWidget {
           ),
           Spacer(),
           IconButton(
-            icon: hasConvRoom
-                ? Icon(Icons.chat_bubble_outline_sharp)
-                : Icon(CupertinoIcons.plus_bubble),
+            icon: Icon(Icons.chat_bubble_outline_sharp),
             color: Colors.white,
-            tooltip: "채팅방 만들기",
+            tooltip: "$friendName와(과) 대화 나누기",
             onPressed: () {
               listPushed(context);
             },
@@ -208,31 +201,38 @@ class FriendsTile extends StatelessWidget {
   }
 
   void listPushed(context) {
-    if (hasConvRoom == true) {
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  ConversationScreen(friendName, oneChatRoomId)));
-    } else {
-      if (friendId != Constants.myId) {
-        String chatRoomId = getRandomString(20);
-        List<String> users = [friendId, Constants.myId.toString()];
-        Map<String, dynamic> chatRoomMap = {
-          "users": users,
-          "chatroomId": chatRoomId,
-          "chatName": "${Constants.myName}, $friendName",
-        };
-        ChatMethods().createChatRoom(chatRoomId, chatRoomMap);
-        ChatMethods().createOneChatRoom(friendId, chatRoomId);
+    ChatMethods().isAlreadyExistChatRoom(friendId).then((value) {
+      print(value);
+      if (value != null) {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    ConversationScreen(friendName, chatRoomId)));
+                    ConversationScreen(value.toString())));
       } else {
-        print("본인은 본인에게 메시지를 전송할 수 없어요.");
+        print("value is null!!");
+
+        if (friendId != Constants.myId) {
+          String chatRoomId = getRandomString(20);
+          List<String> users = [friendId, Constants.myId.toString()];
+          users.sort((a, b) => a.compareTo(b));
+          Map<String, dynamic> chatRoomMap = {
+            "users": users,
+            "chatroomId": chatRoomId,
+            "chatName": "${Constants.myName}, $friendName",
+            "isOneVone": true
+          };
+          ChatMethods().createChatRoom(chatRoomId, chatRoomMap);
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      ConversationScreen(chatRoomId)));
+        } else {
+          print("본인은 본인에게 메시지를 전송할 수 없어요.");
+        }
       }
-    }
+    });
+
   }
 }

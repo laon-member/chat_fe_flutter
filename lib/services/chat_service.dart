@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +18,17 @@ class ChatMethods {
         .collection("chats")
         .orderBy("UNIXtime", descending: true)
         .snapshots();
+  }
+
+  Future <String> getRoomName(String chatRoomId) async {
+    return await FirebaseFirestore.instance
+        .collection("ChatRoom")
+        .doc(chatRoomId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
+          print("SUM!!: ${documentSnapshot.get("chatName").toString()}");
+          return documentSnapshot.get("chatName").toString();
+    });
   }
 
   ///채팅방 이름 바꾸기
@@ -43,75 +56,78 @@ class ChatMethods {
     addInfo(chatRoomId, "채팅방이 열렸습니다!");
   }
 
-  createOneChatRoom(String friendId, String chatRoomId) {
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(Constants.myId)
-        .collection("friends")
-        .doc(friendId)
-        .update({"hasConvRoom": true, "oneChatRoomId": chatRoomId});
-
-    FirebaseFirestore.instance
-        .collection("users")
-        .doc(friendId)
-        .collection("friends")
-        .doc(Constants.myId)
-        .set({
-      "friendId": Constants.myId,
-      "friendName": Constants.myName,
-      "hasConvRoom": true,
-      "oneChatRoomId": chatRoomId
-    });
-  }
-
-  delOneChatRoom(String chatRoomId, String newFriendsId) {
-
+  ///1:1 채팅방 양산 방지를 위한 부분
+  Future<String> isAlreadyExistChatRoom(String friendsId) async {
+    List<dynamic> inUsers;
+    List<String> alreadyInUsers = [Constants.myId, friendsId];
+    alreadyInUsers.sort((a, b) => a.compareTo(b));
+    print(alreadyInUsers);
+    return await FirebaseFirestore.instance
+        .collection("ChatRoom")
+        .where("users", arrayContainsAny: alreadyInUsers)
+        .get()
+        .then((snapshot) {
+      QuerySnapshot querySnapshot = snapshot;
+      print("스넵샷의 사이즈: ${querySnapshot.size}");
+      int i = 0;
+      for (i = 0; i + 1 < querySnapshot.size; i++) {
+        print(i);
+        if (querySnapshot.docs[i]
+                .data()["isOneVone"]
+                .toString()
+                .trim()
+                .replaceAll("[", "")
+                .replaceAll("]", "") ==
+            "true") {
+          inUsers = querySnapshot.docs[i].data()["users"];
+          if (alreadyInUsers.toString() == inUsers.toString()) {
+            print(
+                "이미 있는 채팅방 입니다!!\n채팅방 아이디!!: ${querySnapshot.docs[i].data()["chatroomId"]}");
+            return querySnapshot.docs[i].data()["chatroomId"];
+          }
+        } else {
+          print("이 사용자와 대화를 나눈 전적이 없음.");
+        }
+      }
+      print("for문 끝. 잡힌 채팅방이 하나도 없음!!");
+    }).catchError((e) {});
   }
 
   ///사용자 초대
   addMember(String chatRoomId, String newFriendId, String friendName,
       String chatName, bool isOneVone) {
     List<dynamic> inUsers;
-    String oldFriendId = "";
-    FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).get().then((DocumentSnapshot documentSnapshot) {
+    FirebaseFirestore.instance
+        .collection("ChatRoom")
+        .doc(chatRoomId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
       inUsers = documentSnapshot.get("users");
       inUsers.remove(Constants.myId.toString());
     });
-    oldFriendId = inUsers.toString().trim().replaceAll("[", "").replaceAll("]", "");
     if (isOneVone == null) {
       isOneVone = true;
     }
+
     ///내부에 있는 유저들의 정보를 얻어옴.
-    FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).get().then((DocumentSnapshot documentSnapshot) {
+    FirebaseFirestore.instance
+        .collection("ChatRoom")
+        .doc(chatRoomId)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
       inUsers = documentSnapshot.get("users");
       print("된다!!: $inUsers");
 
       ///만약 초대하고자 하는 사람이 이미 있는 사람이라면
-      if(inUsers.contains(newFriendId)) {
+      if (inUsers.contains(newFriendId)) {
         print("이미 초대한 사용자는 다시 초대할 수 없어요");
       } else {
-        if(isOneVone) {
-          if(newFriendId != oldFriendId && oldFriendId != Constants.myId) {
-            FirebaseFirestore.instance
-                .collection("users")
-                .doc(Constants.myId)
-                .collection("friends")
-                .doc(oldFriendId)
-                .update({"hasConvRoom": false, "oneChatRoomId": ""});
-            FirebaseFirestore.instance
-                .collection("users")
-                .doc(oldFriendId)
-                .collection("friends")
-                .doc(Constants.myId)
-                .update({"hasConvRoom": false, "oneChatRoomId": ""});
-
-            print("기존 친구: $oldFriendId\n1:1 방에서 단체방으로 전환됨");
-            isOneVone = false;
-          }
-        }
-        FirebaseFirestore.instance.collection("ChatRoom").doc(chatRoomId).update({
+        FirebaseFirestore.instance
+            .collection("ChatRoom")
+            .doc(chatRoomId)
+            .update({
           'users': FieldValue.arrayUnion([newFriendId]),
-          'isOneVone' : false
+          'isOneVone': false
         }).catchError((e) {
           print(e);
         });

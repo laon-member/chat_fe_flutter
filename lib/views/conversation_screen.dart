@@ -12,10 +12,9 @@ import 'package:flutter/material.dart';
 ///상대방과 대화할 수 있는 스크린 입니다.
 ///일반 사용자들은 이 스크린을 흔히 "대화방" 혹은 "톡방"으로 부릅니다.
 class ConversationScreen extends StatefulWidget {
-  final String chatName;
   final String chatRoomId;
 
-  ConversationScreen(this.chatName, this.chatRoomId);
+  ConversationScreen(this.chatRoomId);
 
   @override
   _ConversationScreenState createState() => _ConversationScreenState();
@@ -31,6 +30,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
       new TextEditingController();
 
   AudioPlayer audioPlayer = AudioPlayer(mode: PlayerMode.LOW_LATENCY);
+
+  String chatRoomName;
 
   // ignore: non_constant_identifier_names
   Widget ChatMessageList() {
@@ -81,6 +82,11 @@ class _ConversationScreenState extends State<ConversationScreen> {
         chatMessageStream = value;
       });
     });
+    ChatMethods().getRoomName(widget.chatRoomId).then((value) {
+      setState(() {
+        chatRoomName = value;
+      });
+    });
     super.initState();
   }
 
@@ -93,7 +99,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.chatName),
+        title: new Text(chatRoomName == null ? "로드중.." : chatRoomName),
         elevation: 0,
         actions: [
           IconButton(
@@ -207,7 +213,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => FriendsCheckScreen(
-                          widget.chatRoomId, widget.chatName)));
+                          widget.chatRoomId, chatRoomName)));
             },
           ),
         ],
