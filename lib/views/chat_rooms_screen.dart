@@ -2,7 +2,6 @@ import 'package:chat_app/helper/authenticate.dart';
 import 'package:chat_app/helper/constants.dart';
 import 'package:chat_app/helper/helperfunctions.dart';
 import 'package:chat_app/services/auth.dart';
-import 'package:chat_app/services/chat_service.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/conversation_screen.dart';
 import 'package:chat_app/views/friends_screen.dart';

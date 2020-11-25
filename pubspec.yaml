@@ -33,11 +33,12 @@ dependencies:
   dio: ^3.0.10
   downloads_path_provider_28: ^0.1.0
   ext_storage: ^1.0.3
-  file_picker: 2.0.13
+  file_picker: ^2.1.0
   firebase_auth: ^0.18.3
   firebase_core: ^0.5.0
   firebase_image: ^0.3.0
   firebase_storage: ^5.0.1
+  flutter_image_compress: ^0.7.0
   flutter_launcher_icons: 0.8.1
   flutter_local_notifications: ^3.0.1+4
   google_sign_in: 4.5.6

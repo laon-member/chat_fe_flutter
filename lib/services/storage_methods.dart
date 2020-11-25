@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:chat_app/services/chat_service.dart';
@@ -20,17 +19,14 @@ class StorageMethods {
       File file = File(result.files.single.path);
       try {
         String fileRef =
-            "chat/$chatRoomId/${DateTime
-            .now()
-            .millisecondsSinceEpoch}";
+            "chat/$chatRoomId/${DateTime.now().millisecondsSinceEpoch}";
         UploadTask uploadTask = FirebaseStorage.instance
             .ref("$fileRef/${result.files.single.name}")
             .putFile(file);
 
         uploadTask.whenComplete(() {
           print(
-              "다운로드 URL!!: ${FirebaseStorage.instance.ref(
-                  "$fileRef/${result.files.single.name}").getDownloadURL()}");
+              "다운로드 URL!!: ${FirebaseStorage.instance.ref("$fileRef/${result.files.single.name}").getDownloadURL()}");
           ChatMethods().addFile(chatRoomId, result.files.single.name,
               "$fileRef/${result.files.single.name}");
         }).catchError((Object e) {
@@ -43,25 +39,20 @@ class StorageMethods {
   }
 
   void toUploadImage(String chatRoomId) async {
-    FilePickerResult result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
-      type: FileType.image,
-    );
+    FilePickerResult result = await FilePicker.platform
+        .pickFiles(allowMultiple: false, type: FileType.image);
     if (result != null) {
       File file = File(result.files.single.path);
       try {
         String fileRef =
-            "chat/$chatRoomId/${DateTime
-            .now()
-            .millisecondsSinceEpoch}";
+            "chat/$chatRoomId/${DateTime.now().millisecondsSinceEpoch}";
         UploadTask uploadTask = FirebaseStorage.instance
             .ref("$fileRef/${result.files.single.name}")
             .putFile(file);
 
         uploadTask.whenComplete(() {
           print(
-              "다운로드 URL!!: ${FirebaseStorage.instance.ref(
-                  "$fileRef/${result.files.single.name}").getDownloadURL()}");
+              "다운로드 URL!!: ${FirebaseStorage.instance.ref("$fileRef/${result.files.single.name}").getDownloadURL()}");
           ChatMethods().addImage(chatRoomId, result.files.single.name,
               "$fileRef/${result.files.single.name}");
         }).catchError((Object e) {
@@ -73,19 +64,20 @@ class StorageMethods {
     }
   }
 
-  Future<dynamic> toDownloadFile(String message, String downloadUrl,
-      String chatRoomId) async {
-    if (await Permission.storage.request().isGranted){
-      // extStorage는 안드로이드에서만 가능하는것으로 보임. EsxtStorage 가 안드로이드에서만 작동하는것으로 보임.
+  Future<void> toDownloadFile(
+      String message, String downloadUrl, String chatRoomId) async {
+    await Permission.storage.request();
+    if(await Permission.storage.request().isGranted){
+      // appDocDir 은 안드로이드에서만 가능하는것으로 보임. EsxtStorage 가 안드로이드에서만 작동하는것으로 보임.
       String appDocDir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
+      //Directory appDocDir2 = await getApplicationDocumentsDirectory();
       File downloadToFile = File('${appDocDir}/$message');
       print(downloadToFile);
+
       if (downloadToFile.existsSync()) {
         print('이미 다운로드됨!!:: ${downloadToFile.toString()}');
-        OpenFile.open(downloadToFile.path.toString()).catchError((e) {
-          print("파일 읽기 에러!!: $e");
-        });
-        await downloadToFile.open(mode: FileMode.append);
+        await OpenFile.open(downloadToFile.toString());
+        await downloadToFile.open(mode: FileMode.read);
       } else {
         try {
           await FirebaseStorage.instance
@@ -93,35 +85,20 @@ class StorageMethods {
               .writeToFile(downloadToFile)
               .whenComplete(() {
             print('다운로드됨!!:: $downloadToFile');
-            return "completed";
           });
         } on FirebaseException catch (e) {
-          print("파이어베이스 오류!!: $e");
-          await FirebaseStorage.instance.ref(downloadUrl).writeToFile(downloadToFile).resume();
-          return "ERROR!!";
+          print("오류!!: $e");
         }
       }
     }
+
   }
 
-  Future<bool> isExistDownloadFile(String message) async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    File downloadToFile = File('${appDocDir.path}/$message');
-    print(downloadToFile);
-    if (downloadToFile.existsSync()) {
-      return
-        true;
-    } else {
-      return
-        false;
-    }
-  }
-
-  Future<void> toDeleteFile(String message, String downloadUrl,
-      String chatRoomId) async {
+  Future<void> toDeleteFile(
+      String message, String downloadUrl, String chatRoomId) async {
     // appDocDir 은 안드로이드에서만 가능하는것으로 보임. EsxtStorage 가 안드로이드에서만 작동하는것으로 보임.
     String appDocDir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
-    //Directory appDocDir = await getApplicationDocumentsDirectory();
+    //Directory appDocDir2 = await getApplicationDocumentsDirectory();
     File downloadToFile = File('${appDocDir}/$message');
     print(downloadToFile);
 

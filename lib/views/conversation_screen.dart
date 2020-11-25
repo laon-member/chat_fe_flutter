@@ -438,14 +438,10 @@ class MessageTile extends StatelessWidget {
                         : MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      IconButton(
-                        icon: Icon(
+                      Icon(
                           Icons.arrow_circle_down_outlined,
-                          color: Colors.white,
+                          color: Colors.white, size: 30,
                         ),
-                        iconSize: 25,
-                        padding: EdgeInsets.all(0),
-                      ),
                       Flexible(
                         child: Text(message,
                             textAlign: TextAlign.start,
@@ -533,8 +529,8 @@ class MessageTile extends StatelessWidget {
                     fit: BoxFit.cover,
                     image: FirebaseImage('gs://chatappsample-a6614.appspot.com/$download_Url',
                         shouldCache: true,
-                        scale: 0.1,
-                        maxSizeBytes: 3000 * 3000,
+                        scale: 0.01,
+                        maxSizeBytes: 1000 * 1000,
                         cacheRefreshStrategy: CacheRefreshStrategy.NEVER // Switch off update checking
                         ),
                   ),
