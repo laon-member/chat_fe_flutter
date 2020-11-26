@@ -12,10 +12,10 @@ import 'package:permission_handler/permission_handler.dart';
 class StorageMethods {
   toUploadFile(String chatRoomId) async {
     FilePickerResult result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
-      type: FileType.any,
-    );
-    if (result != null) {
+        allowMultiple: false,
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'zip', 'ppt', 'pptx', 'hwp', 'mp3', 'mp4', 'wma', 'wmv', '7z', 'mkv', 'psd', 'ai', 'xls', 'xlsx', 'txt', 'ogg']);
+    if (result != null && result.files.single.size <= 70000) {
       File file = File(result.files.single.path);
       try {
         String fileRef =
@@ -24,7 +24,7 @@ class StorageMethods {
             .ref("$fileRef/${result.files.single.name}")
             .putFile(file);
 
-        uploadTask.whenComplete(() {
+        uploadTask.whenComplete(() async {
           print(
               "다운로드 URL!!: ${FirebaseStorage.instance.ref("$fileRef/${result.files.single.name}").getDownloadURL()}");
           ChatMethods().addFile(chatRoomId, result.files.single.name,
@@ -35,6 +35,8 @@ class StorageMethods {
       } on FirebaseException catch (e) {
         print("파이어베이스 오류!!: $e");
       }
+    } else {
+      return "파일 용량이 70MB를 넘어섰거나 선택한 파일이 없습니다!";
     }
   }
 
@@ -49,12 +51,17 @@ class StorageMethods {
         UploadTask uploadTask = FirebaseStorage.instance
             .ref("$fileRef/${result.files.single.name}")
             .putFile(file);
-
         uploadTask.whenComplete(() {
           print(
               "다운로드 URL!!: ${FirebaseStorage.instance.ref("$fileRef/${result.files.single.name}").getDownloadURL()}");
-          ChatMethods().addImage(chatRoomId, result.files.single.name,
-              "$fileRef/${result.files.single.name}");
+          if(result.files.single.size <= 2500) {
+            ChatMethods().addImage(chatRoomId, result.files.single.name,
+                "$fileRef/${result.files.single.name}");
+          } else if (result.files.single.size <= 20000) {
+            ChatMethods().addFile(chatRoomId, result.files.single.name,
+                "$fileRef/${result.files.single.name}");
+          }
+
         }).catchError((Object e) {
           print("업로드 중 에러 발생!!: $e");
         });
@@ -64,48 +71,94 @@ class StorageMethods {
     }
   }
 
-  Future<void> toDownloadFile(
+  Future<String> toDownloadFile(
       String message, String downloadUrl, String chatRoomId) async {
     await Permission.storage.request();
-    if(await Permission.storage.request().isGranted){
-      // appDocDir 은 안드로이드에서만 가능하는것으로 보임. EsxtStorage 가 안드로이드에서만 작동하는것으로 보임.
-      String appDocDir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
-      //Directory appDocDir2 = await getApplicationDocumentsDirectory();
-      File downloadToFile = File('${appDocDir}/$message');
-      print(downloadToFile);
-
-      if (downloadToFile.existsSync()) {
-        print('이미 다운로드됨!!:: ${downloadToFile.toString()}');
-        await OpenFile.open(downloadToFile.toString());
-        await downloadToFile.open(mode: FileMode.read);
-      } else {
-        try {
-          await FirebaseStorage.instance
-              .ref('$downloadUrl')
-              .writeToFile(downloadToFile)
-              .whenComplete(() {
-            print('다운로드됨!!:: $downloadToFile');
-          });
-        } on FirebaseException catch (e) {
-          print("오류!!: $e");
+    if (await Permission.storage.request().isGranted) {
+      if (Platform.isAndroid) {
+        String appDocDir = await ExtStorage.getExternalStoragePublicDirectory(
+            ExtStorage.DIRECTORY_DOWNLOADS);
+        File downloadToFile = File('$appDocDir/$message');
+        String downloadedFile = '$appDocDir/$message';
+        print(downloadToFile);
+        if (downloadToFile.existsSync()) {
+          print('이미 다운로드됨!!:: ${downloadToFile.toString()}');
+          await OpenFile.open('$appDocDir/$message');
+        } else {
+          try {
+            await FirebaseStorage.instance
+                .ref('$downloadUrl')
+                .writeToFile(downloadToFile)
+                .whenComplete(() {
+              print('다운로드됨!!:: $downloadToFile');
+              OpenFile.open(downloadedFile);
+              return "다운로드 되었습니다.";
+            }).catchError((e) {
+              return "다음과 같은 이유로 다운로드에 실패하였습니다. \n$e";
+            });
+          } on FirebaseException catch (e) {
+            print("파이어베이스 오류!!: $e");
+            return "다음과 같은 이유로 다운로드에 실패하였습니다. \n$e";
+          }
+        }
+      } else if (Platform.isIOS) {
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        File downloadToFile = File('${appDocDir.path}/$message');
+        String downloadedFile = '${appDocDir.path}/$message';
+        print(downloadToFile);
+        if (downloadToFile.existsSync()) {
+          print('이미 다운로드됨!!:: ${downloadToFile.toString()}');
+          await OpenFile.open('${appDocDir.path}/$message');
+        } else {
+          try {
+            await FirebaseStorage.instance
+                .ref('$downloadUrl')
+                .writeToFile(downloadToFile)
+                .whenComplete(() {
+              print('다운로드됨!!:: $downloadToFile');
+              OpenFile.open(downloadedFile);
+              return "다운로드 되었습니다.";
+            }).catchError((e) {
+              return "다음과 같은 이유로 다운로드에 실패하였습니다. \n$e";
+            });
+          } on FirebaseException catch (e) {
+            print("파이어베이스 오류!!: $e");
+            return "다음과 같은 이유로 다운로드에 실패하였습니다. \n$e";
+          }
         }
       }
     }
-
   }
 
-  Future<void> toDeleteFile(
+  Future<String> toDeleteFile(
       String message, String downloadUrl, String chatRoomId) async {
-    // appDocDir 은 안드로이드에서만 가능하는것으로 보임. EsxtStorage 가 안드로이드에서만 작동하는것으로 보임.
-    String appDocDir = await ExtStorage.getExternalStoragePublicDirectory(ExtStorage.DIRECTORY_DOWNLOADS);
-    //Directory appDocDir2 = await getApplicationDocumentsDirectory();
-    File downloadToFile = File('${appDocDir}/$message');
-    print(downloadToFile);
-
-    if (downloadToFile.existsSync()) {
-      downloadToFile.delete();
+    await Permission.storage.request();
+    if (await Permission.storage.request().isGranted) {
+      if (Platform.isAndroid) {
+        String appDocDir = await ExtStorage.getExternalStoragePublicDirectory(
+            ExtStorage.DIRECTORY_DOWNLOADS);
+        File downloadToFile = File('$appDocDir/$message');
+        print(downloadToFile);
+        if (downloadToFile.existsSync()) {
+          downloadToFile.delete();
+          return "정상적으로 삭제되었습니다.";
+        } else {
+          return "파일을 찾을 수 없습니다.\n이미 삭제를 했거나 파일의 위치나 이름이 바뀌었나 봅니다.";
+        }
+      } else if (Platform.isIOS) {
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        File downloadToFile = File('${appDocDir.path}/$message');
+        print(downloadToFile);
+        print(downloadToFile);
+        if (downloadToFile.existsSync()) {
+          downloadToFile.delete();
+          return "정상적으로 삭제되었습니다.";
+        } else {
+          return "파일을 찾을 수 없습니다.\n이미 삭제를 했거나 파일의 위치나 이름이 바뀌었나 봅니다.";
+        }
+      }
     } else {
-      print("파일이 존재하지 않음");
+      return "파일 엑세스 권한을 거부하셔서\n파일 삭제를 할 수 없습니다!";
     }
   }
 }

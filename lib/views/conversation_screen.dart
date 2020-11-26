@@ -378,7 +378,10 @@ class MessageTile extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             StorageMethods()
-                .toDownloadFile(this.message, this.download_Url, chatRoomId);
+                .toDownloadFile(this.message, this.download_Url, chatRoomId).then((value) {
+              String retnSum = value;
+              Scaffold.of(context).showSnackBar(new SnackBar(content: Text(retnSum)));
+            });
           },
           child: Container(
             padding: EdgeInsets.only(
@@ -438,10 +441,13 @@ class MessageTile extends StatelessWidget {
                         : MainAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                          Icons.arrow_circle_down_outlined,
-                          color: Colors.white, size: 30,
-                        ),
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        child: Icon(
+                            Icons.arrow_circle_down_outlined,
+                            color: Colors.white, size: 40,
+                          ),
+                      ),
                       Flexible(
                         child: Text(message,
                             textAlign: TextAlign.start,
@@ -471,7 +477,10 @@ class MessageTile extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             StorageMethods()
-                .toDownloadFile(this.message, this.download_Url, chatRoomId);
+                .toDownloadFile(this.message, this.download_Url, chatRoomId).then((value) {
+                  String retnSum = value;
+              Scaffold.of(context).showSnackBar(new SnackBar(content: Text(retnSum)));
+            });
           },
           child: Container(
             padding: EdgeInsets.only(
@@ -519,9 +528,10 @@ class MessageTile extends StatelessWidget {
                   margin: isSendByMe
                       ? EdgeInsets.only(left: 20)
                       : EdgeInsets.only(right: 20),
-                  padding:
-                      EdgeInsets.only(top: 3, bottom: 3),
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: isSendByMe ? Color(0xff007EF4) : Color(0x1AFFFFFF),
+                  ),
                   child: Image(
                     height: 150,
                     width: 150,
@@ -529,9 +539,10 @@ class MessageTile extends StatelessWidget {
                     fit: BoxFit.cover,
                     image: FirebaseImage('gs://chatappsample-a6614.appspot.com/$download_Url',
                         shouldCache: true,
-                        scale: 0.01,
-                        maxSizeBytes: 1000 * 1000,
-                        cacheRefreshStrategy: CacheRefreshStrategy.NEVER // Switch off update checking
+                        scale: 0.1,
+                        maxSizeBytes: 3000 * 3000,
+                        cacheRefreshStrategy: CacheRefreshStrategy.NEVER,
+                      // Switch off update checking
                         ),
                   ),
                 ),
