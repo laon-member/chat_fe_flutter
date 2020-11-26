@@ -114,6 +114,7 @@ class _SignUpState extends State<SignUp> {
                                 : "이메일이 올바르지 않습니다. 올바른 이메일을 입력해 주세요.";
                           },
                           decoration: textFieldInputDecoration("이메일"),
+                          keyboardType: TextInputType.emailAddress,
                         ),
                         TextFormField(
                           obscureText: true,

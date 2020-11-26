@@ -11,6 +11,7 @@ import 'package:chat_app/views/conversation_screen.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,8 @@ class _FriendsScreenState extends State<FriendsScreen> {
   AuthService authMethods = new AuthService();
   DatabaseMethods databaseMethods = new DatabaseMethods();
   Stream friends;
+
+  String version;
 
   Widget friendsList() {
     return StreamBuilder(
@@ -56,6 +59,12 @@ class _FriendsScreenState extends State<FriendsScreen> {
   @override
   void initState() {
     getUserFriends();
+
+    FirebaseFirestore.instance.collection("notifyUpdate").doc("lastVersion").get().then((value) {
+      DocumentSnapshot documentSnapshot = value;
+      version = documentSnapshot.data()["lastVersion"];
+    });
+
     super.initState();
   }
 
@@ -133,6 +142,31 @@ class _FriendsScreenState extends State<FriendsScreen> {
                                     builder: (context) => Authenticate()));
                           },
                         )
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
+            IconButton(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              icon: Icon(CupertinoIcons.info_circle),
+              tooltip: "앱 정보 및 업데이트 확인",
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    // return object of type Dialog
+                    return AlertDialog(
+                      title: new Text("애플리케이션 정보"),
+                      content: new Text("현재 버전: ${Constants.appVersion}\n새로운 버전: ${version != null ? version : null}"),
+                      actions: <Widget>[
+                        new FlatButton(
+                          child: new Text("확인"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
                       ],
                     );
                   },

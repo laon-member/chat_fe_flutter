@@ -125,9 +125,10 @@ class _SearchState extends State<Search> {
                         Expanded(
                           child: TextField(
                             controller: searchTextEditingController,
+                            keyboardType: TextInputType.name,
                             style: TextStyle(color: Colors.black),
                             decoration: InputDecoration(
-                                hintText: "사용자 이름..",
+                                hintText: "사용자 이름 검색",
                                 hintStyle: TextStyle(
                                   color: Colors.black54,
                                   fontSize: 16,

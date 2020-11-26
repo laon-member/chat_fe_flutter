@@ -530,7 +530,6 @@ class MessageTile extends StatelessWidget {
                       : EdgeInsets.only(right: 20),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: isSendByMe ? Color(0xff007EF4) : Color(0x1AFFFFFF),
                   ),
                   child: Image(
                     height: 150,

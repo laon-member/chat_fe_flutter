@@ -40,7 +40,7 @@ class StorageMethods {
     }
   }
 
-  void toUploadImage(String chatRoomId) async {
+  toUploadImage(String chatRoomId) async {
     FilePickerResult result = await FilePicker.platform
         .pickFiles(allowMultiple: false, type: FileType.image);
     if (result != null) {
@@ -54,10 +54,10 @@ class StorageMethods {
         uploadTask.whenComplete(() {
           print(
               "다운로드 URL!!: ${FirebaseStorage.instance.ref("$fileRef/${result.files.single.name}").getDownloadURL()}");
-          if(result.files.single.size <= 2500) {
+          if(result.files.single.size <= 10000) {
             ChatMethods().addImage(chatRoomId, result.files.single.name,
                 "$fileRef/${result.files.single.name}");
-          } else if (result.files.single.size <= 20000) {
+          } else if (10000 < result.files.single.size && result.files.single.size <= 20000) {
             ChatMethods().addFile(chatRoomId, result.files.single.name,
                 "$fileRef/${result.files.single.name}");
           }

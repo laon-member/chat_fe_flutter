@@ -8,11 +8,11 @@ import 'package:chat_app/views/friends_screen.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/views/signin.dart';
 import 'package:chat_app/widgets/widget.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoom extends StatefulWidget {
-
   @override
   _ChatRoomState createState() => _ChatRoomState();
 }
@@ -21,6 +21,7 @@ class _ChatRoomState extends State<ChatRoom> {
   AuthService authMethods = new AuthService();
   DatabaseMethods databaseMethods = new DatabaseMethods();
   Stream chatRooms;
+  String version;
 
   Widget chatRoomsList() {
     return StreamBuilder(
@@ -54,6 +55,16 @@ class _ChatRoomState extends State<ChatRoom> {
   @override
   void initState() {
     getUserInfogetChats();
+
+    FirebaseFirestore.instance
+        .collection("notifyUpdate")
+        .doc("lastVersion")
+        .get()
+        .then((value) {
+      DocumentSnapshot documentSnapshot = value;
+      version = documentSnapshot.data()["lastVersion"];
+    });
+
     super.initState();
   }
 
@@ -89,54 +100,95 @@ class _ChatRoomState extends State<ChatRoom> {
         notchMargin: 5.0,
         child: new Row(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            IconButton(
-              tooltip: '친구 목록',
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              icon: Icon(CupertinoIcons.person_2),
-              onPressed: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => FriendsScreen()));
-              },
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                IconButton(
+                  tooltip: '친구 목록',
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  icon: Icon(CupertinoIcons.person_2),
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => FriendsScreen()));
+                  },
+                ),
+              ],
             ),
             //로그아웃
-            IconButton(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              icon: Icon(CupertinoIcons.escape),
-              tooltip: "로그아웃",
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    // return object of type Dialog
-                    return AlertDialog(
-                      title: new Text("로그아웃"),
-                      content: new Text("로그아웃 하시겠어요?\n로그아웃 이후 재로그인이 필요합니다."),
-                      actions: <Widget>[
-                        new FlatButton(
-                          child: new Text("취소"),
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                        ),
-                        new FlatButton(
-                          child: new Text("여기를 길게 눌러 로그아웃"),
-                          onPressed: () {},
-                          onLongPress: () {
-                            Navigator.pop(context);
-                            authService.signOut();
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Authenticate()));
-                          },
-                        )
-                      ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  icon: Icon(CupertinoIcons.escape),
+                  tooltip: "로그아웃",
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        // return object of type Dialog
+                        return AlertDialog(
+                          title: new Text("로그아웃"),
+                          content:
+                              new Text("로그아웃 하시겠어요?\n로그아웃 이후 재로그인이 필요합니다."),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text("취소"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            new FlatButton(
+                              child: new Text("여기를 길게 눌러 로그아웃"),
+                              onPressed: () {},
+                              onLongPress: () {
+                                Navigator.pop(context);
+                                authService.signOut();
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Authenticate()));
+                              },
+                            )
+                          ],
+                        );
+                      },
                     );
                   },
-                );
-              },
+                ),
+
+                //버전 비교
+                IconButton(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  icon: Icon(CupertinoIcons.info_circle),
+                  tooltip: "앱 정보 및 업데이트 확인",
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        // return object of type Dialog
+                        return AlertDialog(
+                          title: new Text("애플리케이션 정보"),
+                          content: new Text(
+                              "현재 버전: ${Constants.appVersion}\n새로운 버전: ${version != null ? version : null}"),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text("확인"),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ],
         ),

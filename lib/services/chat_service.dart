@@ -22,7 +22,6 @@ class ChatMethods {
         .doc(chatRoomId)
         .get()
         .then((DocumentSnapshot documentSnapshot) {
-          print("SUM!!: ${documentSnapshot.get("chatName").toString()}");
           return documentSnapshot.get("chatName").toString();
     });
   }
@@ -64,7 +63,6 @@ class ChatMethods {
         .get()
         .then((snapshot) {
       QuerySnapshot querySnapshot = snapshot;
-      print("스넵샷의 사이즈: ${querySnapshot.size}");
       int i = 0;
       for (i = 0; i + 1 < querySnapshot.size; i++) {
         print(i);
