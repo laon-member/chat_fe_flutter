@@ -138,7 +138,7 @@
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.auto.value:auto-value-annotations:1.6.5" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: com.google.firebase:firebase-common:19.3.0@aar" level="project" />
     <orderEntry type="library" scope="TEST" name="Gradle: androidx.core:core:1.1.0@aar" level="project" />
-    <orderEntry type="module" module-name="com.mr.flutter.plugin.filepicker.android.file_picker" />
+    <orderEntry type="module" module-name="android.file_picker" />
     <orderEntry type="module" module-name="android.audioplayers" />
     <orderEntry type="module" module-name="android.google_sign_in" />
     <orderEntry type="module" module-name="android.flutter_image_compress" />
