@@ -55,3 +55,7 @@ samples, guidance on mobile development, and a full API reference.
 * 최초버전 릴리즈 성공 및 애플리케이션 정보 추가
 * 로그인 및 회원가입 텍스트 속성 수정
 * 이미지 구현 관련 코드 안정화 작업
+##### 20201127
+* 키보드 엑션 개선으로 편의성 강화
+* SnackBar 활성화로 사용자 소통 향상
+* 각종 버그 패치

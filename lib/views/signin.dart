@@ -61,7 +61,7 @@ class _SignInState extends State<SignIn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBarCustom(context, "모두 다 함께! Chatting US", true),
+      appBar: appBarCustom(context, "로그인", true),
       //resizeToAvoidBottomPadding: false,
       body: isLoading
           ? Container(
@@ -96,6 +96,7 @@ class _SignInState extends State<SignIn> {
                           style: simpleTextStyle(),
                           decoration: textFieldInputDecoration("이메일"),
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
                         ),
                         TextFormField(
                           obscureText: true,
@@ -106,7 +107,9 @@ class _SignInState extends State<SignIn> {
                           },
                           style: simpleTextStyle(),
                           controller: passwordTextEditingController,
+                          textInputAction: TextInputAction.go,
                           decoration: textFieldInputDecoration("비밀번호"),
+                          onEditingComplete: (() {signIn();}),
                         ),
                       ],
                     ),

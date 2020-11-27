@@ -377,11 +377,13 @@ class MessageTile extends StatelessWidget {
       case "file":
         return GestureDetector(
           onTap: () {
+            Scaffold.of(context).showSnackBar(new SnackBar(content: Text("다운로드 중..")));
             StorageMethods()
                 .toDownloadFile(this.message, this.download_Url, chatRoomId).then((value) {
               String retnSum = value;
-              Scaffold.of(context).showSnackBar(new SnackBar(content: Text(retnSum)));
+              Scaffold.of(context).showSnackBar(new SnackBar(content: Text(retnSum != null ? retnSum : "권한 허용이 되지 않아 다운로드 되지 않았습니다!")));
             });
+
           },
           child: Container(
             padding: EdgeInsets.only(

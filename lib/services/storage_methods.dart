@@ -84,6 +84,7 @@ class StorageMethods {
         if (downloadToFile.existsSync()) {
           print('이미 다운로드됨!!:: ${downloadToFile.toString()}');
           await OpenFile.open('$appDocDir/$message');
+          return "이미 다운로드 된 파일입니다.";
         } else {
           try {
             await FirebaseStorage.instance
@@ -109,6 +110,7 @@ class StorageMethods {
         if (downloadToFile.existsSync()) {
           print('이미 다운로드됨!!:: ${downloadToFile.toString()}');
           await OpenFile.open('${appDocDir.path}/$message');
+          return "이미 다운로드 된 파일입니다.";
         } else {
           try {
             await FirebaseStorage.instance
@@ -127,6 +129,8 @@ class StorageMethods {
           }
         }
       }
+    } else {
+      return null;
     }
   }
 

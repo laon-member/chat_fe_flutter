@@ -21,8 +21,10 @@ class _SignUpState extends State<SignUp> {
   TextEditingController emailEditingController = new TextEditingController();
   TextEditingController passwordEditingController = new TextEditingController();
   TextEditingController usernameEditingController = new TextEditingController();
-  static const _chars = 'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+  static const _chars =
+      'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
   Random _rnd = Random();
+
   String getRandomString(int length) => String.fromCharCodes(Iterable.generate(
       length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
 
@@ -96,6 +98,8 @@ class _SignUpState extends State<SignUp> {
                         TextFormField(
                           style: simpleTextStyle(),
                           controller: usernameEditingController,
+                          keyboardType: TextInputType.name,
+                          textInputAction: TextInputAction.next,
                           validator: (val) {
                             return val.isEmpty || val.length < 1
                                 ? "1자 이상의 이름을 입력해주세요."
@@ -115,12 +119,14 @@ class _SignUpState extends State<SignUp> {
                           },
                           decoration: textFieldInputDecoration("이메일"),
                           keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
                         ),
                         TextFormField(
                           obscureText: true,
                           style: simpleTextStyle(),
                           decoration: textFieldInputDecoration("비밀번호"),
                           controller: passwordEditingController,
+                          onEditingComplete: (() {signMeUp();}),
                           validator: (val) {
                             return val.length >= 6
                                 ? null

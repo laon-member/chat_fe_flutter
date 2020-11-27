@@ -153,13 +153,14 @@ class _FriendsScreenState extends State<FriendsScreen> {
               icon: Icon(CupertinoIcons.info_circle),
               tooltip: "앱 정보 및 업데이트 확인",
               onPressed: () {
-                showDialog(
+                showDialog (
                   context: context,
                   builder: (BuildContext context) {
                     // return object of type Dialog
                     return AlertDialog(
                       title: new Text("애플리케이션 정보"),
-                      content: new Text("현재 버전: ${Constants.appVersion}\n새로운 버전: ${version != null ? version : null}"),
+                      content: new Text(
+                          "현재 버전: ${Constants.appVersion}\n새로운 버전: ${version != null ? version : null}\n${Constants.showDifference}"),
                       actions: <Widget>[
                         new FlatButton(
                           child: new Text("확인"),

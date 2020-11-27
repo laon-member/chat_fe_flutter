@@ -126,14 +126,23 @@ class _SearchState extends State<Search> {
                           child: TextField(
                             controller: searchTextEditingController,
                             keyboardType: TextInputType.name,
+                            textInputAction: TextInputAction.search,
+                            onEditingComplete: (() {initiateSearch();}),
                             style: TextStyle(color: Colors.black),
+
                             decoration: InputDecoration(
                                 hintText: "사용자 이름 검색",
                                 hintStyle: TextStyle(
                                   color: Colors.black54,
                                   fontSize: 16,
                                 ),
-                                border: InputBorder.none),
+                                border: InputBorder.none,
+                              suffixIcon:
+                                  IconButton(
+                                    onPressed: () => searchTextEditingController.clear(),
+                                    icon: Icon(CupertinoIcons.clear_thick_circled, color: Colors.black26,),
+                                  ),
+                            ),
                           ),
                         ),
                         GestureDetector(
@@ -141,16 +150,16 @@ class _SearchState extends State<Search> {
                             initiateSearch();
                           },
                           child: Container(
-                              height: 50,
-                              width: 50,
+                              height: 35,
+                              width: 35,
                               decoration: BoxDecoration(
                                   color: Colors.white24,
                                   borderRadius: BorderRadius.circular(45)),
-                              padding: EdgeInsets.all(10),
+                              padding: EdgeInsets.all(5),
                               child: Icon(
                                 CupertinoIcons.search,
                                 color: Colors.black,
-                                size: 30,
+                                size: 25,
                               )),
                         )
                       ],
