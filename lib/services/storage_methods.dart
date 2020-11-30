@@ -29,6 +29,7 @@ class StorageMethods {
               "다운로드 URL!!: ${FirebaseStorage.instance.ref("$fileRef/${result.files.single.name}").getDownloadURL()}");
           ChatMethods().addFile(chatRoomId, result.files.single.name,
               "$fileRef/${result.files.single.name}");
+          return "업로드가 완료되었습니다.";
         }).catchError((Object e) {
           print("업로드 중 에러 발생!!: $e");
         });
@@ -60,14 +61,19 @@ class StorageMethods {
           } else if (10000 < result.files.single.size && result.files.single.size <= 20000) {
             ChatMethods().addFile(chatRoomId, result.files.single.name,
                 "$fileRef/${result.files.single.name}");
+          } else {
+            return "사진 첨부 용량을 초과하였습니다. 사진 1장은 20MB를 넘어서는 안됩니다.";
           }
-
         }).catchError((Object e) {
           print("업로드 중 에러 발생!!: $e");
+          return "업로드 중 문제가 발생했습니다! $e";
         });
       } on FirebaseException catch (e) {
         print("파이어베이스 오류!!: $e");
+        return "업로드 중 문제가 발생했습니다! (서버 오류)";
       }
+    } else {
+      return "사진을 선택하셔야 합니다!";
     }
   }
 
@@ -134,7 +140,7 @@ class StorageMethods {
     }
   }
 
-  Future<String> toDeleteFile(
+  toDeleteLocalFile(
       String message, String downloadUrl, String chatRoomId) async {
     await Permission.storage.request();
     if (await Permission.storage.request().isGranted) {

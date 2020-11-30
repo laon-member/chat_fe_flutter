@@ -5,7 +5,6 @@ import 'package:chat_app/services/chat_service.dart';
 import 'package:chat_app/services/database.dart';
 import 'package:chat_app/views/search.dart';
 import 'package:chat_app/widgets/widget.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

@@ -165,7 +165,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 IconButton(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   icon: Icon(CupertinoIcons.info_circle),
-                  tooltip: "앱 정보 및 업데이트 확인",
+                  tooltip: "앱 정보",
                   onPressed: () {
                     showDialog(
                       context: context,

@@ -58,6 +58,7 @@ class AuthService {
     }
   }
 
+  // ignore: missing_return
   Future<User> signInWithGoogle(BuildContext context) async {
     final GoogleSignIn _googleSignIn = new GoogleSignIn();
 

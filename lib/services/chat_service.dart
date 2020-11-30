@@ -8,7 +8,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ChatMethods {
   ///대화창에서 대화 내용 불러옵니다.
   getConvMsg(String chatRoomId) async {
-    return await FirebaseFirestore.instance
+    return FirebaseFirestore.instance
         .collection("ChatRoom")
         .doc(chatRoomId)
         .collection("chats")

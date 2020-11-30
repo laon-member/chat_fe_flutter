@@ -7,6 +7,7 @@ import 'package:chat_app/widgets/widget.dart';
 import 'package:firebase_image/firebase_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart';
 
 ///conversation : 대화(nown)
 ///상대방과 대화할 수 있는 스크린 입니다.
@@ -99,7 +100,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
     );
     return Scaffold(
       appBar: AppBar(
-        title: new Text(chatRoomName == null ? "로드중.." : chatRoomName),
+        title: Text(chatRoomName == null ? "로드중.." : chatRoomName),
         elevation: 0,
         actions: [
           IconButton(
@@ -212,8 +213,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => FriendsCheckScreen(
-                          widget.chatRoomId, chatRoomName)));
+                      builder: (context) =>
+                          FriendsCheckScreen(widget.chatRoomId, chatRoomName)));
             },
           ),
         ],
@@ -246,15 +247,25 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           context: context,
                           builder: (BuildContext context) {
                             return AlertDialog(
-                              title: Text("파일/이미지 공유"),
-                              content: Text("파일 또는 이미지를 공유할까요?"),
+                              title: Text("파일/사진 공유"),
+                              content: Text("파일, 사진 중 어떤 것을 공유할까요?"),
                               actions: [
                                 FlatButton(
-                                  child: Text("취소"),
+                                  child: Row(
+                                    children: [
+                                      Icon(CupertinoIcons.xmark),
+                                      Text(" 취소"),
+                                    ],
+                                  ),
                                   onPressed: () => Navigator.pop(context),
                                 ),
                                 FlatButton(
-                                  child: Text("파일 공유"),
+                                  child: Row(
+                                    children: [
+                                      Icon(CupertinoIcons.paperclip),
+                                      Text(" 파일"),
+                                    ],
+                                  ),
                                   onPressed: () {
                                     Navigator.pop(context);
                                     StorageMethods()
@@ -262,7 +273,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                   },
                                 ),
                                 FlatButton(
-                                  child: Text("이미지 공유"),
+                                  child: Row(
+                                    children: [
+                                      Icon(CupertinoIcons.photo),
+                                      Text(" 사진"),
+                                    ],
+                                  ),
                                   onPressed: () {
                                     Navigator.pop(context);
                                     StorageMethods()
@@ -273,6 +289,10 @@ class _ConversationScreenState extends State<ConversationScreen> {
                             );
                           },
                         );
+                      },
+                      onLongPress: () {
+                        Vibration.vibrate(duration: 10);
+                        StorageMethods().toUploadFile(widget.chatRoomId);
                       },
                       child: Container(
                         height: 35,
@@ -300,9 +320,60 @@ class _ConversationScreenState extends State<ConversationScreen> {
                     )),
                     GestureDetector(
                       onTap: () {
-                        messageController.text.trimLeft().trimRight() != ""
-                            ? sendMessage()
-                            : null;
+                        if (messageController.text.trimLeft().trimRight() !=
+                            "") {
+                          Vibration.vibrate(pattern: [0, 10, 100, 10]);
+                          sendMessage();
+                        }
+                      },
+                      onLongPress: () {
+                        Vibration.vibrate(duration: 10,);
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("파일/사진 공유"),
+                              content: Text("파일, 사진 중 어떤 것을 공유할까요?"),
+                              actions: [
+                                FlatButton(
+                                  child: Row(
+                                    children: [
+                                      Icon(CupertinoIcons.xmark),
+                                      Text(" 취소"),
+                                    ],
+                                  ),
+                                  onPressed: () => Navigator.pop(context),
+                                ),
+                                FlatButton(
+                                  child: Row(
+                                    children: [
+                                      Icon(CupertinoIcons.paperclip),
+                                      Text(" 파일"),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    StorageMethods()
+                                        .toUploadFile(widget.chatRoomId);
+                                  },
+                                ),
+                                FlatButton(
+                                  child: Row(
+                                    children: [
+                                      Icon(CupertinoIcons.photo),
+                                      Text(" 사진"),
+                                    ],
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    StorageMethods()
+                                        .toUploadImage(widget.chatRoomId);
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       },
                       child: Container(
                         height: 40,
@@ -377,13 +448,17 @@ class MessageTile extends StatelessWidget {
       case "file":
         return GestureDetector(
           onTap: () {
-            Scaffold.of(context).showSnackBar(new SnackBar(content: Text("다운로드 중..")));
+            Scaffold.of(context)
+                .showSnackBar(SnackBar(content: Text("다운로드 중..")));
             StorageMethods()
-                .toDownloadFile(this.message, this.download_Url, chatRoomId).then((value) {
+                .toDownloadFile(this.message, this.download_Url, chatRoomId)
+                .then((value) {
               String retnSum = value;
-              Scaffold.of(context).showSnackBar(new SnackBar(content: Text(retnSum != null ? retnSum : "권한 허용이 되지 않아 다운로드 되지 않았습니다!")));
+              Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text(retnSum != null
+                      ? retnSum
+                      : "권한 허용이 되지 않아 다운로드 되지 않았습니다!")));
             });
-
           },
           child: Container(
             padding: EdgeInsets.only(
@@ -446,9 +521,10 @@ class MessageTile extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.all(5),
                         child: Icon(
-                            Icons.arrow_circle_down_outlined,
-                            color: Colors.white, size: 40,
-                          ),
+                          Icons.arrow_circle_down_outlined,
+                          color: Colors.white,
+                          size: 40,
+                        ),
                       ),
                       Flexible(
                         child: Text(message,
@@ -479,9 +555,11 @@ class MessageTile extends StatelessWidget {
         return GestureDetector(
           onTap: () {
             StorageMethods()
-                .toDownloadFile(this.message, this.download_Url, chatRoomId).then((value) {
-                  String retnSum = value;
-              Scaffold.of(context).showSnackBar(new SnackBar(content: Text(retnSum)));
+                .toDownloadFile(this.message, this.download_Url, chatRoomId)
+                .then((value) {
+              String retnSum = value;
+              Scaffold.of(context)
+                  .showSnackBar(new SnackBar(content: Text(retnSum)));
             });
           },
           child: Container(
@@ -538,13 +616,14 @@ class MessageTile extends StatelessWidget {
                     width: 150,
                     filterQuality: FilterQuality.low,
                     fit: BoxFit.cover,
-                    image: FirebaseImage('gs://chatappsample-a6614.appspot.com/$download_Url',
-                        shouldCache: true,
-                        scale: 0.1,
-                        maxSizeBytes: 3000 * 3000,
-                        cacheRefreshStrategy: CacheRefreshStrategy.NEVER,
+                    image: FirebaseImage(
+                      'gs://chatappsample-a6614.appspot.com/$download_Url',
+                      shouldCache: true,
+                      scale: 0.1,
+                      maxSizeBytes: 3000 * 3000,
+                      cacheRefreshStrategy: CacheRefreshStrategy.NEVER,
                       // Switch off update checking
-                        ),
+                    ),
                   ),
                 ),
                 Container(

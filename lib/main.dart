@@ -10,8 +10,9 @@ void main() async {
   await Firebase.initializeApp();
   runApp(MyApp());
   print("IT'S RUNNING...\n애플리케이션의 작동을 시작합니다.");
-
-  //SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top]);
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent
+  ));
 }
 
 class MyApp extends StatefulWidget {
@@ -21,27 +22,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool userIsLoggedIn = false;
-
   @override
   void initState() {
     getLoggedInState();
-    // var brightness = SchedulerBinding.instance.window.platformBrightness;
-    // bool darkModeOn = brightness == Brightness.dark;
-    // if(darkModeOn) {
-    //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    //     statusBarColor: Color(0xff2F2F2F),
-    //     systemNavigationBarColor: Color(0xff2F2F2F),
-    //     systemNavigationBarDividerColor: Color(0xff2F2F2F),
-    //     systemNavigationBarIconBrightness: Brightness.light,// navigation bar color
-    //   ));
-    // } else {
-    //   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-    //     statusBarColor: Color(0xffEFEFEF),
-    //     systemNavigationBarColor: Color(0xffEFEFEF),
-    //     systemNavigationBarDividerColor: Color(0xffEFEFEF),
-    //     systemNavigationBarIconBrightness: Brightness.dark,// navigation bar color
-    //   ));
-    // }
     super.initState();
   }
 
@@ -70,16 +53,16 @@ class _MyAppState extends State<MyApp> {
         fontFamily: "OverpassRegular",
         visualDensity: VisualDensity.adaptivePlatformDensity,
         appBarTheme: AppBarTheme(brightness: Brightness.light),
-        indicatorColor: Color(0xffEFEFEF),
       ),
       darkTheme: ThemeData(
         primaryColor: Color(0xff2F2F2F),
+        primaryColorBrightness: Brightness.dark,
         scaffoldBackgroundColor: Color(0xff2F2F2F),
+        bottomAppBarColor: Color(0xFFEFEFEF),
         accentColor: Color(0xff0076FF),
         fontFamily: "OverpassRegular",
         visualDensity: VisualDensity.adaptivePlatformDensity,
         appBarTheme: AppBarTheme(brightness: Brightness.dark),
-
       ),
       home:
       userIsLoggedIn != null ?  userIsLoggedIn ? ChatRoom() : Authenticate()

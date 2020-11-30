@@ -181,6 +181,7 @@ class _FriendsScreenState extends State<FriendsScreen> {
   }
 }
 
+// ignore: must_be_immutable
 class FriendsTile extends StatelessWidget {
   final String friendName;
   final String friendId;

@@ -58,11 +58,21 @@ class _SearchState extends State<Search> {
         : Container();
   }
 
-  addFriend({String userName, String userId, bool hasConvRoom, String oneChatRoomId}) {
-    Map<String, dynamic> friendMap = {"friendId": userId, "friendName": userName, "hasConvRoom": hasConvRoom, "oneChatRoomId": null};
+  addFriend(
+      {String userName,
+      String userId,
+      bool hasConvRoom,
+      String oneChatRoomId}) {
+    Map<String, dynamic> friendMap = {
+      "friendId": userId,
+      "friendName": userName,
+      "hasConvRoom": hasConvRoom,
+      "oneChatRoomId": null
+    };
     databaseMethods.addFriends(userId, friendMap, hasConvRoom, oneChatRoomId);
   }
 
+  // ignore: non_constant_identifier_names
   Widget SearchTile(String userName, String userEmail, String userId) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -84,14 +94,21 @@ class _SearchState extends State<Search> {
           Spacer(),
           GestureDetector(
             onTap: () {
-              userId != Constants.myId ? addFriend(userName: userName, userId: userId, hasConvRoom: false) : null;
+              if (userId != Constants.myId) {
+                addFriend(
+                    userName: userName, userId: userId, hasConvRoom: false);
+              }
             },
             child: Container(
               decoration: BoxDecoration(
-                  color: userId == Constants.myId ? Colors.black54 : Colors.blue, borderRadius: BorderRadius.circular(30)),
+                  color:
+                      userId == Constants.myId ? Colors.black54 : Colors.blue,
+                  borderRadius: BorderRadius.circular(30)),
               padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Icon(
-                userId == Constants.myId ? Icons.person_add_disabled_outlined : Icons.person_add_outlined,
+                userId == Constants.myId
+                    ? Icons.person_add_disabled_outlined
+                    : Icons.person_add_outlined,
                 color: Colors.white,
               ), //하얀색 메시지 아이콘
             ),
@@ -115,54 +132,37 @@ class _SearchState extends State<Search> {
               child: Column(
                 children: [
                   Container(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
                     decoration: BoxDecoration(
                       color: Color(0x99FFFFFF),
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: searchTextEditingController,
-                            keyboardType: TextInputType.name,
-                            textInputAction: TextInputAction.search,
-                            onEditingComplete: (() {initiateSearch();}),
-                            style: TextStyle(color: Colors.black),
-
-                            decoration: InputDecoration(
-                                hintText: "사용자 이름 검색",
-                                hintStyle: TextStyle(
-                                  color: Colors.black54,
-                                  fontSize: 16,
-                                ),
-                                border: InputBorder.none,
-                              suffixIcon:
-                                  IconButton(
-                                    onPressed: () => searchTextEditingController.clear(),
-                                    icon: Icon(CupertinoIcons.clear_thick_circled, color: Colors.black26,),
-                                  ),
+                    child: Expanded(
+                      child: TextField(
+                        controller: searchTextEditingController,
+                        keyboardType: TextInputType.name,
+                        textInputAction: TextInputAction.search,
+                        onEditingComplete: (() {
+                          initiateSearch();
+                        }),
+                        style: TextStyle(color: Colors.black),
+                        decoration: InputDecoration(
+                          hintText: "사용자 이름 검색",
+                          hintStyle: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 17,
+                          ),
+                          border: InputBorder.none,
+                          suffixIcon: IconButton(
+                            onPressed: () =>
+                                searchTextEditingController.clear(),
+                            icon: Icon(
+                              CupertinoIcons.clear_thick_circled,
+                              color: Colors.black26,
                             ),
                           ),
                         ),
-                        GestureDetector(
-                          onTap: () {
-                            initiateSearch();
-                          },
-                          child: Container(
-                              height: 35,
-                              width: 35,
-                              decoration: BoxDecoration(
-                                  color: Colors.white24,
-                                  borderRadius: BorderRadius.circular(45)),
-                              padding: EdgeInsets.all(5),
-                              child: Icon(
-                                CupertinoIcons.search,
-                                color: Colors.black,
-                                size: 25,
-                              )),
-                        )
-                      ],
+                      ),
                     ),
                   ),
                   Container(
